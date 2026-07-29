@@ -38,11 +38,40 @@ constants (gap width, arm tip overlap) to D-spec, and update `KMark` +
 re-verified after the gap narrows (perspective widens the gap on approach;
 needs rendered confirmation).
 
-## Still required before the direction is locked
+## Material studies (Higgsfield, first round — `design/h02/`)
 
-1. Higgsfield material studies of the D geometry (≥4 concepts, critique,
-   refinement pass) — glass character, metal character, light colour and
-   intensity, lens character, background treatment.
-2. Rendered comparison of real-time vs prerendered vs hybrid for the
-   formation sequence.
+Three genuinely different material directions were generated against the
+Concept D construction and critiqued:
+
+- **A — smoked optical glass** (`h02-material-A.png`): **selected.** Dense
+  smoked glass, machined metal caps, restrained interior micro-mechanics at
+  the junction, lit signal gap. Best narrative fit (the machine is visible
+  inside the glass; the signal lives in the gap) and matches the real-time
+  implementation's direction. Geometric deviation to reject in refinement:
+  the model bridged the gap with a bracket — the gap must stay uninterrupted.
+- **B — dark precision metal** (`h02-material-B.png`): rejected as the body
+  material — an opaque K kills the interior narrative and deadens the camera
+  pass — but its satin finish and chamfered edge catchlights are adopted as
+  the finish target for the caps and gap rails.
+- **C — hybrid truss core** (`h02-material-C.png`): rejected — scaffold-like,
+  visually busy, gap bridged, visible generation artifacts on panel seams.
+  It does validate interior mechanics as a concept, at A's restrained dose.
+
+## Real-time vs hybrid (evidence-based, provisional)
+
+The rendered real-time hero achieves credible dark glass but visibly less
+material richness than study A. Decision: **hybrid** — the K, formation and
+pass-through stay real-time (scrub reversibility and the pass are proven in
+the browser and would be costly to fake with frame-controlled video), while
+generated stills serve as material-tuning targets and as prerendered
+atmosphere/hero plates (static edition, OG image, later-chapter detail
+moments). Re-evaluate after the real-time material tuning pass narrows the
+gap to study A.
+
+## Still required before final lock
+
+1. One refinement round of study A (remove the gap bracket, both
+   orientations, macro details).
+2. Real-time material tuning toward A (visible junction internals, cap/rail
+   finish per B).
 3. Documented allowed/prohibited visual variations.
