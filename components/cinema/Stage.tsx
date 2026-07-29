@@ -222,7 +222,6 @@ export default function Stage() {
       tl.to("[data-el='click']", { autoAlpha: 0.9, scale: 1.7, duration: 1.2, ease: "power2.out" }, 32.4);
       tl.to("[data-el='click']", { autoAlpha: 0, duration: 0.8 }, 33.6);
       tl.to("[data-el='sent']", { autoAlpha: 1, y: 0, duration: 1.4, ease: "power3.out" }, 33.4);
-      tl.to("[data-el='orb']", { autoAlpha: 1, scale: 1, duration: 2, ease: "back.out(2)" }, 34.2);
       tl.to("[data-el='cursor']", { autoAlpha: 0, duration: 1 }, 34.4);
 
       /* SCENE 4 — the site leaves; the enquiry enters the machine.
@@ -234,6 +233,9 @@ export default function Stage() {
       tl.to(chan, { kParked: 1, duration: 5, ease: "power2.inOut" }, 39.5);
       // dormant system reveal — silhouette, breathing, nothing active
       tl.to("[data-el='system']", { autoAlpha: 1, duration: 3, ease: "power2.out" }, 40);
+      // the enquiry arrives WITH the machine — the orb is born here, not
+      // on the project card, so no stray dot ever sits on the showcase
+      tl.to("[data-el='orb']", { autoAlpha: 1, scale: 1, duration: 1.6, ease: "back.out(2)" }, 40.3);
       // the orb (the enquiry) glides into the core
       tl.to(
         "[data-el='orb']",
