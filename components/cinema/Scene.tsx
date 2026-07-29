@@ -28,7 +28,7 @@ function CameraRig() {
     const px = cinema.reduced ? 0 : cinema.pointerX * 0.5;
     const py = cinema.reduced ? 0 : cinema.pointerY * 0.3;
 
-    cur.current.x += (0.25 + px - cur.current.x) * lam;
+    cur.current.x += (chan.camX + px - cur.current.x) * lam;
     cur.current.y += (chan.camY + py - cur.current.y) * lam;
     cur.current.z += (chan.camZ - cur.current.z) * lam;
     cur.current.ty += (chan.targetY - cur.current.ty) * lam;
@@ -40,6 +40,37 @@ function CameraRig() {
   });
 
   return null;
+}
+
+/**
+ * The narrow travelling light — LIGHT BUILDS THE K. Sweeps once across
+ * the sculpture during the intro (chan.sweep -1 → 1), brightest mid-pass,
+ * then hands the scene to the studio rig. Cools away during the unfold.
+ */
+function SweepLight() {
+  const light = useRef<THREE.SpotLight>(null);
+  useFrame(() => {
+    const l = light.current;
+    if (!l || cinema.paused) return;
+    const s = chan.sweep;
+    l.position.set(s * 7, 2.4, 5.5);
+    /* bell curve: full power mid-sweep, gone at either end */
+    const bell = Math.max(0, 1 - s * s);
+    l.intensity = 26 * bell * (1 - Math.min(1, chan.kUnfold));
+    l.target.position.set(0.6, 0.4, 0);
+    l.target.updateMatrixWorld();
+  });
+  return (
+    <spotLight
+      ref={light}
+      position={[-7, 2.4, 5.5]}
+      angle={0.32}
+      penumbra={0.9}
+      decay={1.6}
+      intensity={0}
+      color="#cfe2ff"
+    />
+  );
 }
 
 /** Key light follows the pointer so reflections slide across the glass. */
@@ -74,7 +105,10 @@ function Studio() {
 
   return (
     <Environment resolution={tier === "high" ? 256 : 128} frames={1}>
-      <color attach="background" args={["#050607"]} />
+      <color attach="background" args={["#070b12"]} />
+      {/* deep blue backdrop — gives the transmission something to bend.
+          Without this the glass refracts pure void and reads as grey. */}
+      <Lightformer intensity={0.55} position={[0, 0.5, -7]} scale={[16, 10, 1]} color="#2a4a7d" />
       {/* large drifting softbox — the hero reflection */}
       <group ref={main}>
         <Lightformer
@@ -175,8 +209,9 @@ export default function Scene() {
       <ambientLight intensity={0.24} />
       <hemisphereLight intensity={0.3} color="#e8f2f5" groundColor="#0c0f12" />
       <KeyLight />
+      <SweepLight />
       {/* cool rim from behind — feeds the crystal's blue heart */}
-      <directionalLight position={[-4, 2.2, -5]} intensity={0.55} color="#5b8ee6" />
+      <directionalLight position={[-4, 2.2, -5]} intensity={0.65} color="#5b8ee6" />
       <CameraRig />
       <AdvanceBridge />
 

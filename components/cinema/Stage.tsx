@@ -101,6 +101,22 @@ export default function Stage() {
       // Everything hidden except the hero copy; deterministic on refresh.
       gsap.set(copies, { autoAlpha: 0, y: 44 });
       gsap.set("[data-copy='1']", { autoAlpha: 1, y: 0 });
+
+      /* LIGHT BUILDS THE K — the load-time reveal. Played once, never
+         scrubbed: darkness → one live edge → the sweep crosses → glass,
+         heart and silhouette resolve → copy staggers in, CTAs last. */
+      gsap.set(chan, { camX: 0.25 });
+      const heroBits = qa("[data-copy='1'] > *");
+      if (cinema.reduced) {
+        gsap.set(chan, { reveal: 1, sweep: 1 });
+      } else {
+        gsap.set(heroBits, { autoAlpha: 0, y: 26 });
+        gsap
+          .timeline({ delay: 0.2, defaults: { ease: "power2.inOut" } })
+          .to(chan, { reveal: 1, duration: 3.1 }, 0)
+          .to(chan, { sweep: 1, duration: 3.8, ease: "power1.inOut" }, 0.1)
+          .to(heroBits, { autoAlpha: 1, y: 0, duration: 1.6, stagger: 0.22, ease: "power3.out" }, 1.5);
+      }
       gsap.set("[data-el='site']", { autoAlpha: 0, y: 60, scale: 0.94 });
       gsap.set("[data-el='film2']", { autoAlpha: 0 });
       gsap.set("[data-el='filmtitle']", { autoAlpha: 0, y: 26 });
@@ -150,7 +166,9 @@ export default function Stage() {
       const copyOut = (n: number, at: number) =>
         tl.to(`[data-copy='${n}']`, { autoAlpha: 0, y: -44, duration: 2.2, ease: "power3.in" }, at);
 
-      /* SCENE 1 — the K, alone. Hold 0–9. */
+      /* SCENE 1 — the K, alone. Hold 0–9: the scroll breathes the camera
+         in and drifts it a few degrees laterally — depth, not spin. */
+      tl.to(chan, { camZ: mobile ? 11.3 : 8.95, camX: 0.06, duration: 9, ease: "power1.inOut" }, 0);
       copyOut(1, 9);
 
       /* SCENE 2 — mechanical unfold into the website. */
@@ -362,7 +380,29 @@ export default function Stage() {
       };
     }
 
+    /* Magnetic primary CTA — desktop pointer only, gently */
+    let onCtaMove: ((e: PointerEvent) => void) | null = null;
+    const heroCta = el.querySelector<HTMLElement>("[data-copy='1'] a[href='#book']");
+    if (heroCta && !cinema.reduced && window.matchMedia("(pointer: fine)").matches) {
+      const qx = gsap.quickTo(heroCta, "x", { duration: 0.45, ease: "power3" });
+      const qy = gsap.quickTo(heroCta, "y", { duration: 0.45, ease: "power3" });
+      onCtaMove = (e: PointerEvent) => {
+        const r = heroCta.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        if (Math.hypot(dx, dy) < 96) {
+          qx(dx * 0.18);
+          qy(dy * 0.18);
+        } else {
+          qx(0);
+          qy(0);
+        }
+      };
+      window.addEventListener("pointermove", onCtaMove, { passive: true });
+    }
+
     return () => {
+      if (onCtaMove) window.removeEventListener("pointermove", onCtaMove);
       window.removeEventListener("pointermove", onPointer);
       const raf = (el as HTMLElement & { __lenisRaf?: (t: number) => void }).__lenisRaf;
       if (raf) gsap.ticker.remove(raf);

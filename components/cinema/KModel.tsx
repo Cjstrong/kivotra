@@ -84,9 +84,10 @@ function extrude(pts: Pt[], depth: number, bevel: number): THREE.ExtrudeGeometry
     depth,
     bevelEnabled: true,
     bevelThickness: bevel,
-    bevelSize: bevel * 0.8,
-    bevelSegments: 4,
-    curveSegments: 6,
+    bevelSize: bevel * 0.85,
+    /* many shallow steps — a cut facet ring, not a rounded corner */
+    bevelSegments: 7,
+    curveSegments: 8,
   });
   g.translate(0, 0, -depth / 2);
   return g;
@@ -104,11 +105,12 @@ export default function KModel() {
     if (IS_MOBILE()) return { pos: [0, 0.98, 0] as const, scale: 0.66 };
     // Short landscape viewports (1280×800-class) get a smaller, higher pose
     // so the sculpture never collides with the headline zone.
+    // Desktop sits slightly off-centre right — the headline owns the left.
     const short =
       typeof window !== "undefined" && window.innerHeight < 760;
     return short
-      ? { pos: [0, 0.78, 0] as const, scale: 0.68 }
-      : { pos: [0, 0.42, 0] as const, scale: 0.86 };
+      ? { pos: [0.7, 0.74, 0] as const, scale: 0.68 }
+      : { pos: [0.85, 0.4, 0] as const, scale: 0.88 };
   }, []);
 
   const built = useMemo(
@@ -116,42 +118,45 @@ export default function KModel() {
       PANELS.map((p) => {
         const [cx, cy] = centroid(p.pts);
         const local = p.pts.map(([x, y]) => [x - cx, y - cy] as Pt);
+        const shell = extrude(local, p.depth, 0.085);
         return {
-          /* thicker bevels — the crystal's facets */
-          shell: extrude(local, p.depth, 0.07),
-          /* slimmer heart, so light actually travels through the glass */
-          core: extrude(local.map(([x, y]) => [x * 0.52, y * 0.52] as Pt), p.depth * 0.36, 0.012),
+          shell,
+          /* the sapphire heart — an emissive volume deep in the glass */
+          core: extrude(local.map(([x, y]) => [x * 0.58, y * 0.58] as Pt), p.depth * 0.3, 0.02),
+          /* the electric edges — every facet crease as a light line */
+          edges: new THREE.EdgesGeometry(shell, 18),
           asm: [cx, cy, 0] as [number, number, number],
         };
       }),
     []
   );
 
-  const [shellMat, coreMat, pinMat] = useMemo(() => {
+  const [shellMat, coreMat, pinMat, edgeMat] = useMemo(() => {
     /* Optical crystal: full transmission, thick glass, real dispersion.
-       The blue lives INSIDE the material (attenuation), not on it. */
+       Transmission survives every tier — the tiers scale cost, not truth. */
     const shell = new THREE.MeshPhysicalMaterial({
       color: "#ffffff",
-      transmission: cinema.tier === "low" ? 0 : 1,
-      thickness: 2.4,
-      roughness: 0.03,
+      transmission: cinema.tier === "low" ? 0.85 : 1,
+      thickness: 2.6,
+      roughness: 0.04,
       ior: 1.52,
-      dispersion: cinema.tier === "high" ? 0.24 : 0,
+      dispersion: cinema.tier === "high" ? 0.28 : 0,
       clearcoat: 1,
       clearcoatRoughness: 0.03,
-      attenuationColor: "#a9c8f2",
-      attenuationDistance: 3.2,
+      attenuationColor: "#5d8fe0",
+      attenuationDistance: 2.1,
       specularIntensity: 1,
-      envMapIntensity: 2.8,
+      envMapIntensity: 3.2,
       transparent: true,
     });
-    /* A slim graphite heart — gives the facets something to bend. */
+    /* The sapphire heart — deep blue illumination from inside the glass. */
     const core = new THREE.MeshStandardMaterial({
-      color: "#171c22",
-      metalness: 0.9,
-      roughness: 0.42,
-      envMapIntensity: 1.1,
+      color: "#04070f",
+      emissive: "#1e56d6",
+      emissiveIntensity: 0.55,
+      roughness: 0.5,
       transparent: true,
+      toneMapped: false,
     });
     const pin = new THREE.MeshStandardMaterial({
       color: "#c3cdd6",
@@ -160,7 +165,16 @@ export default function KModel() {
       envMapIntensity: 2.2,
       transparent: true,
     });
-    return [shell, core, pin];
+    /* Electric-blue facet edges — the first thing the light finds. */
+    const edge = new THREE.LineBasicMaterial({
+      color: "#6fb8ff",
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    return [shell, core, pin, edge];
   }, []);
 
   useFrame((_, delta) => {
@@ -173,10 +187,23 @@ export default function KModel() {
     const present = smoothstep(1 - parked);
     g.visible = present > 0.01;
 
+    /* LIGHT BUILDS THE K — before the reveal the object is a silhouette
+       with one live edge; the glass, heart and reflections arrive with
+       the travelling light. */
+    const rv = clamp01(chan.reveal);
+    const emerge = 0.12 + 0.88 * smoothstep(rv);
+
     const dim = lerp(1, 0.42, smoothstep(u)) * present;
-    shellMat.opacity = dim * (cinema.tier === "low" ? 0.92 : 1);
-    coreMat.opacity = dim;
-    pinMat.opacity = dim;
+    shellMat.opacity = dim * emerge * (cinema.tier === "low" ? 0.92 : 1);
+    shellMat.envMapIntensity = 3.2 * (0.2 + 0.8 * smoothstep(rv));
+    coreMat.opacity = dim * emerge;
+    /* the sapphire heart brightens as the light finds it, calms when built */
+    coreMat.emissiveIntensity = 0.06 + smoothstep(rv) * 0.62 + Math.sin(clamp01(u) * Math.PI) * 0.5;
+    pinMat.opacity = dim * emerge;
+    /* electric edges lead the reveal, then settle into the glass */
+    const lead = smoothstep(Math.min(1, rv * 1.9));
+    const settle = 1 - 0.74 * smoothstep((rv - 0.55) / 0.45);
+    edgeMat.opacity = dim * lead * settle * 0.85;
 
     // still at rest: whisper of breath + small pointer lean, gone in motion
     const rest = (1 - u) * present;
@@ -227,6 +254,7 @@ export default function KModel() {
         >
           <mesh geometry={built[i].shell} material={shellMat} castShadow={cinema.tier === "high"} />
           <mesh geometry={built[i].core} material={coreMat} />
+          <lineSegments geometry={built[i].edges} material={edgeMat} />
           {(p.key === "wingUp" || p.key === "wingDn") && (
             <mesh
               material={pinMat}

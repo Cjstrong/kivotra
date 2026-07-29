@@ -27,7 +27,15 @@ export default function Fallback() {
       </div>
 
       <header className={styles.hero} id="top">
-        <div className={styles.heroK}><GlassK variant="hero" sweepId="fb" /></div>
+        {/* the strongest generated crystal frame — the premium no-WebGL hero */}
+        <div className={styles.heroK}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/img/hero-still.jpg"
+            alt="The Kivotra crystal K emerging from darkness"
+            className={styles.heroStill}
+          />
+        </div>
         <p className={styles.eyebrow}>Websites &amp; automation for local business</p>
         <h1 className={styles.heroTitle}>
           {SCENES.arrival.headline[0]}<br />

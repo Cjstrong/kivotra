@@ -38,8 +38,17 @@
   visibility: hidden;
   will-change: transform, opacity;
 }
+/* Hero lockup: integrated, off-centre — the K owns the right of frame,
+   the headline owns the left. (Mobile recentres; see the mobile edit.) */
 .copyHero {
   gap: 24px;
+  left: max(28px, 7vw);
+  right: auto;
+  bottom: 16%;
+  transform: none;
+  width: min(640px, 48vw);
+  align-items: flex-start;
+  text-align: left;
 }
 .kicker {
   font-family: var(--font-mono);
@@ -1231,6 +1240,17 @@
   .copyHero {
     gap: 12px;
     padding-bottom: 8px;
+    /* mobile is art-directed centred: K above, lockup beneath */
+    left: 50%;
+    right: auto;
+    bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    width: calc(100vw - 44px);
+    align-items: center;
+    text-align: center;
+  }
+  .ctaRow {
+    gap: 16px;
   }
   .h1 {
     font-size: clamp(34px, 9.6vw, 46px);
@@ -1382,6 +1402,8 @@
   }
   .copyHero {
     gap: 12px;
+    bottom: 10%;
+    width: min(560px, 46vw);
   }
   .h1 {
     font-size: clamp(26px, 3.6vw, 40px);

@@ -266,3 +266,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* generated crystal hero still — the premium no-WebGL fallback */
+.heroStill {
+  width: min(420px, 72vw);
+  border-radius: 20px;
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9);
+}

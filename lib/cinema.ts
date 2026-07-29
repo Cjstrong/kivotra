@@ -16,11 +16,16 @@ export const chan = {
   /** camera dolly */
   camZ: 9.4,
   camY: -0.4,
+  camX: 0.25,
   targetY: -0.55,
   /** 0 = K assembled · 1 = unfolded into the website frame */
   kUnfold: 0,
   /** 0 = on stage · 1 = withdrawn into darkness (pipeline/dashboard acts) */
   kParked: 0,
+  /** hero: 0 = darkness · 1 = the light has built the K (intro + phase 1-2) */
+  reveal: 0,
+  /** hero: position of the narrow light sweep, -1 (off left) .. 1 (off right) */
+  sweep: -1,
 };
 
 export const cinema = {
