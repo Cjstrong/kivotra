@@ -14,10 +14,10 @@ export const NAV = {
 /** Scene copy, keyed to the master timeline stages. */
 export const SCENES = {
   arrival: {
-    headline: ["Websites that win attention.", "Systems that run the business."],
-    sub: "We design high-converting websites and build the automations behind them.",
-    primary: "Book a Free Strategy Call",
-    secondary: "See What We Build",
+    headline: ["Websites that", "win attention."],
+    sub: "AI systems that run the business. Built for companies that refuse to look average.",
+    primary: "Book a Call",
+    secondary: "See the Work",
   },
   website: {
     headline: "Your website should do more than look good.",

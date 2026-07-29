@@ -245,7 +245,37 @@ p {
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  background: radial-gradient(120% 100% at 50% 0%, #0a0c11 0%, #060709 60%, #050608 100%);
+  /* volumetric depth, never flat black: a cool halo where the crystal
+     lives, a faint floor bounce, deep vignetted corners */
+  background:
+    radial-gradient(52% 44% at 50% 38%, rgba(91, 142, 230, 0.1) 0%, transparent 70%),
+    radial-gradient(70% 30% at 50% 96%, rgba(120, 150, 190, 0.05) 0%, transparent 75%),
+    radial-gradient(120% 100% at 50% 0%, #0a0d13 0%, #060709 60%, #050608 100%);
+}
+/* one soft light shaft, drifting almost imperceptibly */
+.cinema-stage::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from 218deg at 68% -8%,
+    transparent 0deg,
+    rgba(150, 180, 225, 0.045) 14deg,
+    rgba(150, 180, 225, 0.02) 26deg,
+    transparent 40deg
+  );
+  animation: shaft-drift 46s ease-in-out infinite alternate;
+}
+@keyframes shaft-drift {
+  from { transform: translateX(-1.5%) rotate(-0.6deg); }
+  to { transform: translateX(1.5%) rotate(0.8deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cinema-stage::before {
+    animation: none;
+  }
 }
 .cinema-canvas {
   position: absolute;

@@ -117,8 +117,10 @@ export default function KModel() {
         const [cx, cy] = centroid(p.pts);
         const local = p.pts.map(([x, y]) => [x - cx, y - cy] as Pt);
         return {
-          shell: extrude(local, p.depth, 0.045),
-          core: extrude(local.map(([x, y]) => [x * 0.78, y * 0.78] as Pt), p.depth * 0.55, 0.015),
+          /* thicker bevels — the crystal's facets */
+          shell: extrude(local, p.depth, 0.07),
+          /* slimmer heart, so light actually travels through the glass */
+          core: extrude(local.map(([x, y]) => [x * 0.52, y * 0.52] as Pt), p.depth * 0.36, 0.012),
           asm: [cx, cy, 0] as [number, number, number],
         };
       }),
@@ -126,31 +128,36 @@ export default function KModel() {
   );
 
   const [shellMat, coreMat, pinMat] = useMemo(() => {
+    /* Optical crystal: full transmission, thick glass, real dispersion.
+       The blue lives INSIDE the material (attenuation), not on it. */
     const shell = new THREE.MeshPhysicalMaterial({
-      color: "#2a3138",
-      transmission: cinema.tier === "low" ? 0 : 0.55,
-      thickness: 1.2,
-      roughness: 0.06,
-      ior: 1.5,
+      color: "#ffffff",
+      transmission: cinema.tier === "low" ? 0 : 1,
+      thickness: 2.4,
+      roughness: 0.03,
+      ior: 1.52,
+      dispersion: cinema.tier === "high" ? 0.24 : 0,
       clearcoat: 1,
-      clearcoatRoughness: 0.04,
-      attenuationColor: "#12403c",
-      attenuationDistance: 3.4,
-      envMapIntensity: 2.4,
+      clearcoatRoughness: 0.03,
+      attenuationColor: "#a9c8f2",
+      attenuationDistance: 3.2,
+      specularIntensity: 1,
+      envMapIntensity: 2.8,
       transparent: true,
     });
+    /* A slim graphite heart — gives the facets something to bend. */
     const core = new THREE.MeshStandardMaterial({
-      color: "#3f474e",
-      metalness: 1,
-      roughness: 0.32,
-      envMapIntensity: 1.5,
+      color: "#171c22",
+      metalness: 0.9,
+      roughness: 0.42,
+      envMapIntensity: 1.1,
       transparent: true,
     });
     const pin = new THREE.MeshStandardMaterial({
-      color: "#aeb6bd",
+      color: "#c3cdd6",
       metalness: 1,
-      roughness: 0.12,
-      envMapIntensity: 2,
+      roughness: 0.1,
+      envMapIntensity: 2.2,
       transparent: true,
     });
     return [shell, core, pin];
@@ -242,9 +249,9 @@ export default function KModel() {
           <boxGeometry args={[0.56, 0.07, 0.26]} />
           <meshStandardMaterial
             ref={channelMatRef}
-            color="#0c1514"
-            emissive="#57e6da"
-            emissiveIntensity={0.35}
+            color="#0b1020"
+            emissive="#6fb8ff"
+            emissiveIntensity={0.5}
             roughness={0.3}
             transparent
             toneMapped={false}

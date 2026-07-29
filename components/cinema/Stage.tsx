@@ -376,13 +376,19 @@ export default function Stage() {
       {/* ---- copy: one block at a time, ever ---- */}
       <div className={styles.copyLayer}>
         <div className={`${styles.copy} ${styles.copyHero}`} data-copy="1">
-          <p className={styles.kicker}>Kivotra</p>
+          <p className={styles.kicker}>Kivotra — Digital Studio</p>
           <h1 className={styles.h1}>
-            Websites that win attention.
+            Websites that
             <br />
-            <span className={styles.dim}>Systems that run the business.</span>
+            win attention.
           </h1>
-          <a href="#book" className={styles.cta}>Book a Call</a>
+          <p className={styles.heroSub}>
+            AI systems that run the business. Built for companies that refuse to look average.
+          </p>
+          <div className={styles.ctaRow}>
+            <a href="#book" className={styles.cta}>Book a Call</a>
+            <a href="#work" className={styles.ctaGhost}>See the Work</a>
+          </div>
         </div>
 
         <div className={styles.copy} data-copy="2">
@@ -414,11 +420,11 @@ export default function Stage() {
         {/* the closing frame mirrors the opening — the loop */}
         <div className={`${styles.copy} ${styles.copyHero}`} data-copy="7" id="book">
           <span className={styles.anno}>BUILT TO KEEP MOVING</span>
-          <p className={styles.kicker}>Kivotra</p>
+          <p className={styles.kicker}>Kivotra — Digital Studio</p>
           <h2 className={styles.h1}>
-            Websites that win attention.
+            Websites that
             <br />
-            <span className={styles.dim}>Systems that run the business.</span>
+            win attention.
           </h2>
           <a href="#book" className={styles.cta}>Book a Call</a>
         </div>

@@ -97,6 +97,58 @@ function Studio() {
   );
 }
 
+/**
+ * Dust in the light — a sparse particle field around the sculpture.
+ * Visible only while the K is at rest (the hero), fading as the film
+ * moves on. Skipped entirely on low tier and for reduced motion.
+ */
+function Particles() {
+  const ref = useRef<THREE.Points>(null);
+  const mat = useRef<THREE.PointsMaterial>(null);
+  const count = cinema.tier === "high" ? 140 : 70;
+
+  const positions = useRef<Float32Array | null>(null);
+  if (!positions.current) {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 9;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 6 + 0.6;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 4 - 0.5;
+    }
+    positions.current = arr;
+  }
+
+  useFrame((state) => {
+    if (cinema.paused) return;
+    const rest = (1 - Math.min(1, chan.kUnfold)) * (1 - Math.min(1, chan.kParked));
+    if (mat.current) mat.current.opacity = 0.32 * rest;
+    if (ref.current) {
+      ref.current.visible = rest > 0.02;
+      // the slowest possible drift — dust hanging in a light shaft
+      ref.current.rotation.y = state.clock.elapsedTime * 0.008;
+      ref.current.position.y = Math.sin(state.clock.elapsedTime * 0.05) * 0.08;
+    }
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions.current, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={mat}
+        size={0.035}
+        color="#9fc4ff"
+        transparent
+        opacity={0.32}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
 /** Dev-only: manual frame stepping for verification when rAF is throttled. */
 function AdvanceBridge() {
   const advance = useThree((s) => s.advance);
@@ -123,10 +175,13 @@ export default function Scene() {
       <ambientLight intensity={0.24} />
       <hemisphereLight intensity={0.3} color="#e8f2f5" groundColor="#0c0f12" />
       <KeyLight />
+      {/* cool rim from behind — feeds the crystal's blue heart */}
+      <directionalLight position={[-4, 2.2, -5]} intensity={0.55} color="#5b8ee6" />
       <CameraRig />
       <AdvanceBridge />
 
       <KModel />
+      {tier !== "low" && !cinema.reduced && <Particles />}
 
       {/* grounded, luxury: a soft shadow beneath the object */}
       <ContactShadows
@@ -144,7 +199,7 @@ export default function Scene() {
 
       {tier !== "low" && (
         <EffectComposer enableNormalPass={false} multisampling={tier === "high" ? 4 : 0}>
-          <Bloom intensity={0.22} luminanceThreshold={0.9} luminanceSmoothing={0.9} mipmapBlur />
+          <Bloom intensity={0.34} luminanceThreshold={0.82} luminanceSmoothing={0.85} mipmapBlur />
           <Vignette eskil={false} offset={0.24} darkness={0.78} />
         </EffectComposer>
       )}
