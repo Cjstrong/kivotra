@@ -33,19 +33,22 @@ const BG = "#050607";
 
 function useGlassMaterial() {
   return useMemo(() => {
+    /* Ultra-clear optical glass (selected material study A): the body is
+       water-clear and becomes luminous by refracting the practical strip
+       lights behind it — lit by its environment, never blending into it. */
     const m = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#d7dce8"),
+      color: new THREE.Color("#ffffff"),
       metalness: 0,
-      roughness: 0.12,
+      roughness: 0.09,
       transmission: 1,
-      thickness: 0.7,
-      ior: 1.5,
-      attenuationColor: new THREE.Color("#8892aa"),
-      attenuationDistance: 2.6,
+      thickness: 0.55,
+      ior: 1.52,
+      attenuationColor: new THREE.Color("#dfe6f2"),
+      attenuationDistance: 8,
       clearcoat: 1,
-      clearcoatRoughness: 0.22,
-      envMapIntensity: 2.2,
-      iridescence: 0.18,
+      clearcoatRoughness: 0.12,
+      envMapIntensity: 2.6,
+      iridescence: 0.12,
       iridescenceIOR: 1.3,
     });
     return m;
@@ -166,6 +169,9 @@ export default function KScene({
   const glass = useGlassMaterial();
   const metal = useMetalMaterial();
   const glow = useGlowMaterial();
+  /* separation pool: a dim cool radial behind the K so its dark silhouette
+     always separates from the void — atmosphere, not bloom */
+  const hazePool = useGlowMaterial();
 
   const internalsMaterial = useMemo(
     () =>
@@ -260,9 +266,49 @@ export default function KScene({
 
   const pointerCur = useRef({ x: 0, y: 0 });
   const readySent = useRef(false);
+  const camInit = useRef(false);
+  const camTarget = useRef({
+    pos: new THREE.Vector3(),
+    look: new THREE.Vector3(),
+  });
+  const camSmooth = useRef({ look: new THREE.Vector3() });
   const keyLight = useRef<THREE.DirectionalLight>(null);
   const rimLight = useRef<THREE.PointLight>(null);
   const corridorLight = useRef<THREE.PointLight>(null);
+  /* studio practicals: thin strip lights behind the K — their refraction
+     through the clear glass is what makes the K luminous */
+  const practicalMaterial = useMemo(
+    () =>
+      // Opaque on purpose: transparent objects are excluded from the
+      // transmission buffer, and the whole point of the practicals is to be
+      // seen through the glass. Soft gradient falls to black, which is
+      // invisible against the void; intensity uniform does the fading.
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color("#dfe9ff") },
+          uIntensity: { value: 0 },
+        },
+        vertexShader: /* glsl */ `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: /* glsl */ `
+          uniform vec3 uColor;
+          uniform float uIntensity;
+          varying vec2 vUv;
+          void main() {
+            float x = pow(max(0.0, 1.0 - abs(vUv.x - 0.5) * 2.0), 1.6);
+            float y = smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
+            gl_FragColor = vec4(uColor * uIntensity * x * y, 1.0);
+          }
+        `,
+        toneMapped: false,
+      }),
+    []
+  );
   const floorMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -279,11 +325,16 @@ export default function KScene({
   /* R3F does not dispose resources created imperatively via useMemo —
      release them ourselves when the scene unmounts. */
   useEffect(() => {
+    hazePool.uniforms.uColor.value.set("#4d5b85");
+  }, [hazePool]);
+
+  useEffect(() => {
     return () => {
       for (const r of [
         glass,
         metal,
         glow,
+        hazePool,
         internalsMaterial,
         lineMaterial,
         corridorMaterial,
@@ -291,6 +342,7 @@ export default function KScene({
         internalsGeometry,
         corridorGeometry,
         floorMaterial,
+        practicalMaterial,
       ]) {
         r.dispose();
       }
@@ -299,6 +351,7 @@ export default function KScene({
     glass,
     metal,
     glow,
+    hazePool,
     internalsMaterial,
     lineMaterial,
     corridorMaterial,
@@ -306,6 +359,7 @@ export default function KScene({
     internalsGeometry,
     corridorGeometry,
     floorMaterial,
+    practicalMaterial,
   ]);
 
   useFrame((state) => {
@@ -322,14 +376,20 @@ export default function KScene({
     p.x = lerp(p.x, state.pointer.x, 0.05);
     p.y = lerp(p.y, state.pointer.y, 0.05);
 
+    /* -- separation pool: rises with the machine, sits behind it ------ */
+    hazePool.uniforms.uOpacity.value =
+      span(f, 0.34, 0.5) * 0.18 * (1 - span(f, 0.86, 0.94));
+    practicalMaterial.uniforms.uIntensity.value =
+      span(f, 0.38, 0.56) * (1 - span(f, 0.86, 0.93));
+
     /* -- camera ------------------------------------------------------ */
     const camZ =
       f < 0.4
         ? track(f, 0, 0.4, 12, 7.2) * distMul
         : f < 0.62
-          ? track(f, 0.4, 0.62, 7.2, 4.3) * distMul
+          ? track(f, 0.4, 0.62, 7.2, 4.9) * distMul
           : f < BEATS.passThrough[0]
-            ? track(f, 0.62, BEATS.passThrough[0], 4.3, 2.5) * distMul
+            ? track(f, 0.62, BEATS.passThrough[0], 4.9, 2.6) * distMul
             : track(
                 f,
                 BEATS.passThrough[0],
@@ -347,7 +407,7 @@ export default function KScene({
     // whole framing left so the K sits in the right half of the frame and
     // the type owns the left — they must never overlap.
     const editorialPan =
-      -0.85 * fadeWindow(f, [0.42, 0.5, 0.8, 0.88]) * (tier === "mobile" ? 0.4 : 1);
+      -0.62 * fadeWindow(f, [0.42, 0.5, 0.8, 0.88]) * (tier === "mobile" ? 0.4 : 1);
     const frameX =
       K3D.visualCenterX *
         kScale *
@@ -357,15 +417,36 @@ export default function KScene({
 
     // one graceful orbital arc during formation, straight for the pass
     const orbit = Math.sin(span(f, 0.3, BEATS.passThrough[0]) * Math.PI);
-    camera.position.set(frameX + orbit * 0.8, orbit * 0.25, camZ);
+
+    // Physically-operated camera: the scrub defines the target, the rig
+    // follows with tiny inertia, breathing and micro adjustments — like a
+    // dolly operator, never a math orbit.
+    const breatheZ = Math.sin(t * 0.5) * 0.018;
+    const microX = Math.sin(t * 0.31) * 0.006 + Math.sin(t * 0.77) * 0.003;
+    const microY = Math.sin(t * 0.43) * 0.005;
+    const targetPos = camTarget.current.pos.set(
+      frameX + orbit * 0.8 + microX,
+      orbit * 0.25 + microY,
+      camZ + breatheZ * (1 - span(f, 0.82, 1))
+    );
 
     const parallax = 0.4 * (1 - span(f, 0.82, 0.92));
     const targetZ = -track(f, 0.82, 0.92, 0, 30);
-    camera.lookAt(
+    const targetLook = camTarget.current.look.set(
       frameX + p.x * parallax,
       p.y * parallax * 0.6,
       targetZ
     );
+
+    if (!camInit.current) {
+      camInit.current = true;
+      camera.position.copy(targetPos);
+      camSmooth.current.look.copy(targetLook);
+    } else {
+      camera.position.lerp(targetPos, 0.14);
+      camSmooth.current.look.lerp(targetLook, 0.16);
+    }
+    camera.lookAt(camSmooth.current.look);
 
     /* -- signal: point → engineered line → the K's gap --------------- */
     const pulse = Math.sin(t * 2.4) * 0.5 + 0.5;
@@ -413,12 +494,12 @@ export default function KScene({
           forms; the entry stays almost completely black ---------------- */
     const lightRise = span(f, 0.36, 0.56);
     if (keyLight.current) {
-      keyLight.current.intensity = 0.05 + lightRise * 1.35;
+      keyLight.current.intensity = 0.05 + lightRise * 2.3;
     }
     if (rimLight.current) {
-      rimLight.current.intensity = lightRise * 2.4;
+      rimLight.current.intensity = lightRise * 3.6;
     }
-    floorMaterial.opacity = lightRise * 0.55;
+    floorMaterial.opacity = lightRise * 0.4;
 
     /* -- formation: parts slide onto the signal axis ------------------ */
     const partsVisible = f > 0.34;
@@ -523,35 +604,80 @@ export default function KScene({
         decay={2}
       />
 
-      {/* Local, network-free studio environment for reflections */}
+      {/* Automotive-studio environment: tall strip softboxes that draw long
+          elegant reflections down the glass, one strong key box, dim fill. */}
       <Environment resolution={256} frames={1}>
+        {/* key softbox — upper right, the sculpting light */}
         <Lightformer
-          intensity={2.1}
-          position={[4, 3, 3]}
-          scale={[3, 3, 1]}
-          color="#dfe6f2"
+          intensity={3.4}
+          position={[4.5, 3.5, 2.5]}
+          scale={[3.4, 2.6, 1]}
+          color="#e8edf8"
+        />
+        {/* tall vertical strips — the long streaks in the glass */}
+        <Lightformer
+          intensity={2.6}
+          position={[-3.2, 0.6, 3.4]}
+          rotation-y={0.5}
+          scale={[0.55, 7, 1]}
+          color="#cfd8ea"
         />
         <Lightformer
-          intensity={1.1}
-          position={[-4, 1.5, -2]}
+          intensity={2.2}
+          position={[3.4, 0.4, 4.2]}
+          rotation-y={-0.45}
+          scale={[0.4, 7, 1]}
+          color="#dbe3f2"
+        />
+        {/* overhead strip — caps and top chamfers */}
+        <Lightformer
+          intensity={1.6}
+          position={[0.5, 4.6, 0.5]}
+          rotation-x={Math.PI / 2}
+          scale={[6, 0.7, 1]}
+          color="#c2cce2"
+        />
+        {/* rear cool sheet for rim reflections */}
+        <Lightformer
+          intensity={1.2}
+          position={[-4, 1.5, -3]}
           rotation-y={Math.PI}
-          scale={[2, 4, 1]}
+          scale={[2.5, 5, 1]}
           color="#8ea2c8"
         />
+        {/* dim frontal fill — keeps front faces readable, never flat */}
         <Lightformer
-          intensity={0.7}
-          position={[0, -3, 2]}
-          scale={[5, 1, 1]}
-          color="#5c6a8a"
-        />
-        {/* faint frontal fill so glass faces carry a readable sheen */}
-        <Lightformer
-          intensity={0.32}
+          intensity={0.5}
           position={[0, 0.5, 7]}
           scale={[11, 8, 1]}
-          color="#39415a"
+          color="#3a4668"
         />
       </Environment>
+
+      {/* separation pool behind the K — silhouette never sinks into void */}
+      <mesh position={[0.3, 0.1, -1.05]} scale={[13, 8.5, 1]}>
+        <planeGeometry args={[1, 1]} />
+        <primitive object={hazePool} attach="material" />
+      </mesh>
+
+      {/* studio practicals: soft strip lights the glass body refracts —
+          one behind each limb so the whole K reads luminous */}
+      {(tier === "mobile"
+        ? [
+            { x: -0.45, h: 2.9, w: 0.5 },
+            { x: 0.8, h: 2.1, w: 0.42 },
+          ]
+        : [
+            { x: -0.45, h: 2.9, w: 0.5 },
+            { x: 0.8, h: 2.1, w: 0.42 },
+            { x: 1.42, h: 2.4, w: 0.48 },
+          ]
+      ).map((s) => (
+        <mesh key={s.x} position={[s.x, 0.15, -1.25]}>
+          <planeGeometry args={[s.w, s.h]} />
+          <primitive object={practicalMaterial} attach="material" />
+        </mesh>
+      ))}
 
       {/* ---- The K ---- */}
       <group ref={kGroup}>
