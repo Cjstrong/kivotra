@@ -6,3 +6,7 @@
 next-env.d.ts
 .DS_Store
 .env*.local
+
+# Unpacked archive of an earlier snapshot — identical to the tracked source
+/Archive
+/Archive.zip
