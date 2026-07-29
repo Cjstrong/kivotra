@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, RoundedBox } from "@react-three/drei";
+import {
+  Environment,
+  Lightformer,
+  MeshReflectorMaterial,
+  RoundedBox,
+} from "@react-three/drei";
 import { filmProgress } from "@/lib/experience/progress";
 import {
   BEATS,
@@ -12,6 +17,7 @@ import {
   lerp,
   fadeWindow,
   easeOutCubic,
+  easeOutSeat,
   easeInQuad,
   easeInOutCubic,
 } from "@/lib/experience/timeline";
@@ -102,53 +108,57 @@ function useGlowMaterial() {
   );
 }
 
-/** Microscopic machined components suspended inside a glass bar. */
-function BarInternals({
-  count,
+/**
+ * The machined core inside a glass bar: a precise central spine with evenly
+ * spaced cross-ribs. Structured, deterministic — engineering, not debris.
+ */
+function BarCore({
   size,
   rotation = 0,
   center,
   material,
-  geometry,
+  ribGeometry,
 }: {
-  count: number;
   size: [number, number, number];
   rotation?: number;
   center: [number, number, number];
   material: THREE.Material;
-  geometry: THREE.BufferGeometry;
+  ribGeometry: THREE.BufferGeometry;
 }) {
   const ref = useRef<THREE.InstancedMesh>(null);
+  const length = size[1];
+  const ribCount = Math.max(6, Math.round(length / 0.17));
 
   useEffect(() => {
     const mesh = ref.current;
     if (!mesh) return;
     const dummy = new THREE.Object3D();
     const rot = new THREE.Matrix4().makeRotationZ(rotation);
-    for (let i = 0; i < count; i++) {
-      const local = new THREE.Vector3(
-        (Math.random() - 0.5) * size[0] * 0.66,
-        (Math.random() - 0.5) * size[1] * 0.9,
-        (Math.random() - 0.5) * size[2] * 0.66
-      ).applyMatrix4(rot);
+    for (let i = 0; i < ribCount; i++) {
+      const yLocal = (i / (ribCount - 1) - 0.5) * length * 0.86;
+      const local = new THREE.Vector3(0, yLocal, 0).applyMatrix4(rot);
       dummy.position.set(
         center[0] + local.x,
         center[1] + local.y,
         center[2] + local.z
       );
-      dummy.rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        rotation
-      );
-      dummy.scale.setScalar(0.5 + Math.random() * 1.1);
+      dummy.rotation.set(0, 0, rotation);
+      // rib geometry has a 0.1 base footprint — scale to the bar section
+      dummy.scale.set((size[0] * 0.6) / 0.1, 1, (size[2] * 0.6) / 0.1);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
     mesh.instanceMatrix.needsUpdate = true;
-  }, [count, rotation, size, center]);
+  }, [ribCount, rotation, size, center, length]);
 
-  return <instancedMesh ref={ref} args={[geometry, material, count]} />;
+  return (
+    <>
+      <mesh position={center} rotation={[0, 0, rotation]} material={material}>
+        <boxGeometry args={[0.042, length * 0.9, 0.042]} />
+      </mesh>
+      <instancedMesh ref={ref} args={[ribGeometry, material, ribCount]} />
+    </>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -162,9 +172,10 @@ export default function KScene({
 }) {
   // Only base-Camera members (position, lookAt) are used — no narrowing needed.
   const camera = useThree((s) => s.camera);
-  const distMul = tier === "mobile" ? 1.5 : 1;
+  const baseFov = tier === "mobile" ? 38 : 28;
+  const passFov = tier === "mobile" ? 52 : 46;
+  const distMul = tier === "mobile" ? 0.75 : 1;
   const kScale = tier === "mobile" ? 0.85 : 1;
-  const internalCount = tier === "mobile" ? 30 : 60;
 
   const glass = useGlassMaterial();
   const metal = useMetalMaterial();
@@ -186,7 +197,18 @@ export default function KScene({
     []
   );
   const internalsGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.05, 0.05, 0.05),
+    () => new THREE.BoxGeometry(0.1, 0.016, 0.1),
+    []
+  );
+  const pulseMesh = useRef<THREE.Mesh>(null);
+  const pulseMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: new THREE.Color("#eaf1ff"),
+        transparent: true,
+        opacity: 0,
+        toneMapped: false,
+      }),
     []
   );
 
@@ -237,7 +259,7 @@ export default function KScene({
     let i = 0;
     for (let z = -9; z >= -30; z -= 2.1) {
       for (const x of [-1.75, 1.75]) {
-        dummy.position.set(x, 0, z);
+        dummy.position.set(x, -0.56, z);
         dummy.rotation.set(0, x > 0 ? -0.12 : 0.12, 0);
         dummy.scale.setScalar(1);
         dummy.updateMatrix();
@@ -300,9 +322,12 @@ export default function KScene({
           uniform float uIntensity;
           varying vec2 vUv;
           void main() {
-            float x = pow(max(0.0, 1.0 - abs(vUv.x - 0.5) * 2.0), 1.6);
+            float x = pow(max(0.0, 1.0 - abs(vUv.x - 0.5) * 2.0), 2.4);
             float y = smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
-            gl_FragColor = vec4(uColor * uIntensity * x * y, 1.0);
+            // rest on the scene background colour, never pure black — an
+            // unlit practical must be indistinguishable from the void
+            vec3 bg = vec3(0.0196, 0.0235, 0.0275);
+            gl_FragColor = vec4(bg + uColor * uIntensity * x * y, 1.0);
           }
         `,
         toneMapped: false,
@@ -343,6 +368,7 @@ export default function KScene({
         corridorGeometry,
         floorMaterial,
         practicalMaterial,
+        pulseMaterial,
       ]) {
         r.dispose();
       }
@@ -360,6 +386,7 @@ export default function KScene({
     corridorGeometry,
     floorMaterial,
     practicalMaterial,
+    pulseMaterial,
   ]);
 
   useFrame((state) => {
@@ -380,24 +407,36 @@ export default function KScene({
     hazePool.uniforms.uOpacity.value =
       span(f, 0.34, 0.5) * 0.18 * (1 - span(f, 0.86, 0.94));
     practicalMaterial.uniforms.uIntensity.value =
-      span(f, 0.38, 0.56) * (1 - span(f, 0.86, 0.93));
+      span(f, 0.38, 0.56) * 1.15 * (1 - span(f, 0.86, 0.93));
 
     /* -- camera ------------------------------------------------------ */
+    // Framing beats, long-lens distances: arrive (17→12), hold with a slow
+    // creep (12→10.2), commit to the approach (→2.7), pass through.
     const camZ =
       f < 0.4
-        ? track(f, 0, 0.4, 12, 7.2) * distMul
+        ? track(f, 0, 0.4, 17, 12) * distMul
         : f < 0.62
-          ? track(f, 0.4, 0.62, 7.2, 4.9) * distMul
+          ? track(f, 0.4, 0.62, 12, 10.2) * distMul
           : f < BEATS.passThrough[0]
-            ? track(f, 0.62, BEATS.passThrough[0], 4.9, 2.6) * distMul
+            ? track(f, 0.62, BEATS.passThrough[0], 10.2, 2.7) * distMul
             : track(
                 f,
                 BEATS.passThrough[0],
                 1,
-                2.5 * distMul,
+                2.7 * distMul,
                 -7.5,
                 easeInQuad
               );
+
+    // Dolly-zoom only for the pass: the lens widens as we cross the gap,
+    // opening the corridor reveal.
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const fov = baseFov + (passFov - baseFov) * span(f, 0.85, 0.98);
+      if (Math.abs(camera.fov - fov) > 0.01) {
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+      }
+    }
 
     // The letterform's visual centre sits right of the gap axis (x = 0).
     // The framing follows the story: centre the lone signal first, drift to
@@ -415,8 +454,11 @@ export default function KScene({
         (1 - span(f, 0.72, 0.86)) +
       editorialPan;
 
-    // one graceful orbital arc during formation, straight for the pass
-    const orbit = Math.sin(span(f, 0.3, BEATS.passThrough[0]) * Math.PI);
+    // one orbital arc during formation that dies before the statement hold —
+    // the letterform must be read nearly frontally, like a drawn mark
+    const orbit =
+      Math.sin(span(f, 0.3, 0.62) * Math.PI) *
+      (1 - span(f, 0.56, 0.66) * 0.88);
 
     // Physically-operated camera: the scrub defines the target, the rig
     // follows with tiny inertia, breathing and micro adjustments — like a
@@ -486,8 +528,9 @@ export default function KScene({
     }
     if (gapLight.current) {
       const flare = Math.sin(span(f, 0.84, 0.94) * Math.PI) * 2.2;
+      const powerOn = Math.sin(span(f, 0.64, 0.71) * Math.PI) * 1.5;
       gapLight.current.intensity =
-        0.25 + span(f, 0.24, 0.4) * 0.8 + flare;
+        0.25 + span(f, 0.24, 0.4) * 0.8 + flare + powerOn;
     }
 
     /* -- motivated lighting: the studio lights come up as the machine
@@ -513,7 +556,7 @@ export default function KScene({
         BEATS.stemIn[1],
         -6,
         0,
-        easeOutCubic
+        easeOutSeat
       );
     }
     if (armUpperGroup.current) {
@@ -523,7 +566,7 @@ export default function KScene({
         BEATS.armUpperIn[1],
         5,
         0,
-        easeOutCubic
+        easeOutSeat
       );
     }
     if (armLowerGroup.current) {
@@ -533,8 +576,16 @@ export default function KScene({
         BEATS.armLowerIn[1],
         5,
         0,
-        easeOutCubic
+        easeOutSeat
       );
+    }
+
+    /* -- precision beats: final alignment, then the machine powers on ---- */
+    const pulse01 = span(f, 0.64, 0.71);
+    if (pulseMesh.current) {
+      pulseMesh.current.position.y = lerp(-1.3, 1.42, pulse01);
+      pulseMesh.current.visible = pulse01 > 0 && pulse01 < 1;
+      pulseMaterial.opacity = Math.sin(pulse01 * Math.PI);
     }
     const capScale = Math.max(
       0.0001,
@@ -555,6 +606,9 @@ export default function KScene({
     if (kGroup.current) {
       kGroup.current.rotation.y =
         Math.sin(t * 0.22) * 0.02 * span(f, 0.72, 0.8);
+      // parts arrive fractionally out of true, then the machine aligns
+      kGroup.current.rotation.z =
+        0.01 * span(f, 0.42, 0.5) * (1 - easeInOutCubic(span(f, 0.54, 0.6)));
       kGroup.current.scale.setScalar(kScale);
     }
 
@@ -660,20 +714,30 @@ export default function KScene({
         <primitive object={hazePool} attach="material" />
       </mesh>
 
-      {/* studio practicals: soft strip lights the glass body refracts —
-          one behind each limb so the whole K reads luminous */}
-      {(tier === "mobile"
-        ? [
-            { x: -0.45, h: 2.9, w: 0.5 },
-            { x: 0.8, h: 2.1, w: 0.42 },
-          ]
-        : [
-            { x: -0.45, h: 2.9, w: 0.5 },
-            { x: 0.8, h: 2.1, w: 0.42 },
-            { x: 1.42, h: 2.4, w: 0.48 },
-          ]
-      ).map((s) => (
-        <mesh key={s.x} position={[s.x, 0.15, -1.25]}>
+      {/* studio practicals: one soft strip behind each limb, aligned to the
+          limb's axis so the glass owns the light — nothing pokes out */}
+      {[
+        { x: -0.45, y: 0.15, rot: 0, h: 2.9, w: 0.5 },
+        {
+          x: K3D.arm.upperCenter[0],
+          y: K3D.arm.upperCenter[1],
+          rot: -K3D.armAngle,
+          h: 1.85,
+          w: 0.4,
+        },
+        {
+          x: K3D.arm.lowerCenter[0],
+          y: K3D.arm.lowerCenter[1],
+          rot: K3D.armAngle,
+          h: 1.85,
+          w: 0.4,
+        },
+      ].map((s) => (
+        <mesh
+          key={`${s.x}-${s.y}`}
+          position={[s.x, s.y, -1.25]}
+          rotation={[0, 0, s.rot]}
+        >
           <planeGeometry args={[s.w, s.h]} />
           <primitive object={practicalMaterial} attach="material" />
         </mesh>
@@ -695,6 +759,12 @@ export default function KScene({
         </mesh>
         <mesh ref={lineCapBottom} material={metal}>
           <boxGeometry args={[0.06, 0.025, 0.06]} />
+        </mesh>
+
+        {/* power-on: one pulse of light travels up the gap as the K seats */}
+        <mesh ref={pulseMesh} visible={false}>
+          <boxGeometry args={[0.028, 0.22, 0.028]} />
+          <primitive object={pulseMaterial} attach="material" />
         </mesh>
 
         {/* stem — slides in from the left */}
@@ -727,12 +797,11 @@ export default function KScene({
           >
             <boxGeometry args={[K3D.stem.size[0] + 0.06, 0.09, 0.56]} />
           </mesh>
-          <BarInternals
-            count={internalCount}
+          <BarCore
             size={K3D.stem.size}
             center={K3D.stem.center}
             material={internalsMaterial}
-            geometry={internalsGeometry}
+            ribGeometry={internalsGeometry}
           />
         </group>
 
@@ -754,13 +823,12 @@ export default function KScene({
           >
             <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
           </mesh>
-          <BarInternals
-            count={Math.round(internalCount * 0.66)}
+          <BarCore
             size={K3D.arm.size}
             rotation={-K3D.armAngle}
             center={K3D.arm.upperCenter}
             material={internalsMaterial}
-            geometry={internalsGeometry}
+            ribGeometry={internalsGeometry}
           />
         </group>
         <group ref={armLowerGroup}>
@@ -780,22 +848,41 @@ export default function KScene({
           >
             <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
           </mesh>
-          <BarInternals
-            count={Math.round(internalCount * 0.66)}
+          <BarCore
             size={K3D.arm.size}
             rotation={K3D.armAngle}
             center={K3D.arm.lowerCenter}
             material={internalsMaterial}
-            geometry={internalsGeometry}
+            ribGeometry={internalsGeometry}
           />
         </group>
       </group>
 
-      {/* ---- floor: faint sheen fading up with the lights ---- */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.9, -20]}>
-        <planeGeometry args={[120, 160]} />
-        <primitive object={floorMaterial} attach="material" />
-      </mesh>
+      {/* ---- floor: the object stands on glossy dark ground; on desktop it
+              carries a real soft reflection — the commercial signature ---- */}
+      {tier === "high" ? (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.78, -14]}>
+          <planeGeometry args={[80, 110]} />
+          <MeshReflectorMaterial
+            blur={[420, 120]}
+            resolution={512}
+            mixBlur={0.9}
+            mixStrength={2.4}
+            roughness={0.82}
+            depthScale={1.1}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#040507"
+            metalness={0.45}
+            mirror={0.55}
+          />
+        </mesh>
+      ) : (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.78, -20]}>
+          <planeGeometry args={[120, 160]} />
+          <primitive object={floorMaterial} attach="material" />
+        </mesh>
+      )}
 
       {/* ---- Chapter 03 teaser: sameness, receding into fog ---- */}
       <instancedMesh

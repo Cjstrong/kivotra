@@ -29,6 +29,12 @@ export const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 export const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
 export const easeInQuad = (t: number) => t * t;
+/** machined seating: small overshoot, firmly damped — parts *seat*, not stop */
+export const easeOutSeat = (t: number) => {
+  const c1 = 0.7;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+};
 
 /**
  * Text-window opacity: ramp in across [a,b], hold [b,c], ramp out [c,d].

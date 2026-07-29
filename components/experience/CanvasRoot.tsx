@@ -15,11 +15,13 @@ export default function CanvasRoot({ onReady }: { onReady: () => void }) {
       <Canvas
         dpr={[1, DPR_CAP[tier]]}
         camera={{
-          fov: tier === "mobile" ? 50 : 42,
+          // Long lens: compressed perspective keeps the letterform legible
+          // and reads like a product commercial, never like a phone camera.
+          fov: tier === "mobile" ? 38 : 28,
           // near must clear the K's half-gap (~0.077 wu) during pass-through
           near: 0.04,
           far: 80,
-          position: [0, 0, 12],
+          position: [0, 0, 17],
         }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
