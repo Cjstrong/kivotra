@@ -219,7 +219,7 @@ export default function Stage() {
       copyIn(6, 81);
       // the camera drifts across the gallery during the hold
       tl.to("[data-el='devtrack']", { xPercent: -8, duration: 8, ease: "none" }, 83);
-      // the same devices re-dress for each project: Aurelia → Forge → Olive
+      // the same devices re-dress for each project: Aurelia → Veyra → Olive
       tl.to(qa("[data-proj='a']"), { autoAlpha: 0, duration: 1.1, ease: "power2.inOut" }, 84.2);
       tl.to(qa("[data-proj='b']"), { autoAlpha: 1, duration: 1.1, ease: "power2.inOut" }, 84.6);
       tl.to(qa("[data-proj='b']"), { autoAlpha: 0, duration: 1.1, ease: "power2.inOut" }, 87.2);
@@ -514,10 +514,10 @@ export default function Stage() {
             </div>
             <div className={styles.projMeta} data-proj="b">
               <span className={styles.projNo}>PROJECT 02</span>
-              <span className={styles.projName}>Forge &amp; Sons</span>
-              <span className={styles.projField}>Construction</span>
-              <span className={styles.projServices}>Website · Quote system · CRM</span>
-              <span className={styles.projNote}>Harcourt Rd extension, D06 — 84 m², 14 weeks. Survey → Build → Handover.</span>
+              <span className={styles.projName}>Veyra Estates</span>
+              <span className={styles.projField}>Luxury real estate</span>
+              <span className={styles.projServices}>Website · 3D walkthrough · Viewings</span>
+              <span className={styles.projNote}>Cliffside residence — a scroll-driven 3D walkthrough. Every room, before the viewing.</span>
             </div>
             <div className={styles.projMeta} data-proj="c">
               <span className={styles.projNo}>PROJECT 03</span>
@@ -545,18 +545,18 @@ export default function Stage() {
                   <div className={styles.pVisual}><span className={styles.siteImageArch} /></div>
                 </div>
               </div>
-              {/* Forge home */}
-              <div className={`${styles.projLayer} ${styles.forge}`} data-proj="b">
-                <div className={styles.pNav}><span className={styles.pBrand}>FORGE &amp; SONS</span><span className={styles.pNavLinks}>Projects · Services · Process · About</span><span className={styles.pNavCta}>Quote</span></div>
+              {/* Veyra home */}
+              <div className={`${styles.projLayer} ${styles.veyra}`} data-proj="b">
+                <div className={styles.pNav}><span className={styles.pBrand}>VEYRA</span><span className={styles.pNavLinks}>Residences · Walkthrough · Viewings · Contact</span><span className={styles.pNavCta}>Enquire</span></div>
                 <div className={styles.pHero}>
                   <div>
-                    <span className={styles.pEyebrow}>Build · Renovate · Deliver</span>
-                    <span className={styles.pHeadline}>Master builders.<br />Modern standards.</span>
-                    <span className={styles.pSub}>Residential &amp; commercial projects delivered with discipline.</span>
-                    <span className={styles.pCta}>Get a quote</span>
-                    <span className={styles.pTrust}>25 yrs combined · Fully insured</span>
+                    <span className={styles.pEyebrow}>Luxury real estate · 3D walkthrough</span>
+                    <span className={styles.pHeadline}>Step inside.<br />Before you arrive.</span>
+                    <span className={styles.pSub}>Scroll through every room of the residence — from anywhere.</span>
+                    <span className={styles.pCta}>Begin the walkthrough</span>
+                    <span className={styles.pTrust}>Private viewings · By appointment</span>
                   </div>
-                  <div className={styles.pVisual}><span className={styles.pBeam} /><span className={styles.pBlock} /></div>
+                  <div className={styles.pVisual} />
                 </div>
               </div>
               {/* Olive home */}
@@ -588,14 +588,14 @@ export default function Stage() {
                 <span className={styles.pCta}>Confirm</span>
                 <span className={styles.pConfirm}>✓ Confirmed — Today 14:30</span>
               </div>
-              {/* Forge quote */}
-              <div className={`${styles.projLayer} ${styles.forge}`} data-proj="b">
-                <span className={styles.pBrand}>FORGE</span>
-                <span className={styles.pTitleSm}>Get a quote</span>
-                <div className={styles.pField}>Extension</div>
-                <div className={styles.pField}>D04 · Dublin</div>
-                <span className={styles.pCta}>Send request</span>
-                <span className={styles.pConfirm}>Reply within 4 hrs</span>
+              {/* Veyra viewing */}
+              <div className={`${styles.projLayer} ${styles.veyra}`} data-proj="b">
+                <span className={styles.pBrand}>VEYRA</span>
+                <span className={styles.pTitleSm}>Book a private viewing</span>
+                <div className={styles.pField}>Cliffside Residence</div>
+                <div className={styles.pField}>Sat · 11:00</div>
+                <span className={styles.pCta}>Request viewing</span>
+                <span className={styles.pConfirm}>✓ Confirmed — Sat 11:00</span>
               </div>
               {/* Olive reservation */}
               <div className={`${styles.projLayer} ${styles.olive}`} data-proj="c">
@@ -613,7 +613,7 @@ export default function Stage() {
         {/* project identity captions, cycled with the screens */}
         <div className={styles.projCaptions}>
           <span className={styles.projCaption} data-proj="a">Aurelia Dental — private clinic · concept build</span>
-          <span className={styles.projCaption} data-proj="b">Forge &amp; Sons — construction · concept build</span>
+          <span className={styles.projCaption} data-proj="b">Veyra Estates — luxury real estate · concept build</span>
           <span className={styles.projCaption} data-proj="c">Olive &amp; Ash — restaurant · concept build</span>
         </div>
       </div>

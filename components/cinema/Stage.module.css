@@ -684,13 +684,13 @@
   --b-card: #ffffff;
   --b-font: var(--font-display);
 }
-.forge {
-  --b-bg: #17181a;        /* near black */
-  --b-bg2: #232527;       /* warm concrete */
-  --b-ink: #f0efec;       /* off-white */
-  --b-mut: #8e9297;       /* steel */
-  --b-acc: #e0742a;       /* restrained safety orange */
-  --b-card: #1f2123;
+.veyra {
+  --b-bg: #0e1118;        /* deep indigo night */
+  --b-bg2: #171c26;       /* blue-hour slate */
+  --b-ink: #ece9e2;       /* warm off-white */
+  --b-mut: #8b8fa0;       /* dusk slate */
+  --b-acc: #d9a05b;       /* interior amber */
+  --b-card: #141924;
   --b-font: var(--font-display);
 }
 .olive {
@@ -921,7 +921,7 @@
   letter-spacing: 0.06em;
   color: var(--b-ink);
 }
-.forge .pBrand { letter-spacing: 0.18em; }
+.veyra .pBrand { letter-spacing: 0.24em; }
 .olive .pBrand { font-style: italic; letter-spacing: 0.02em; }
 .pTitleSm {
   font-size: 13px;
@@ -980,7 +980,7 @@
   letter-spacing: -0.02em;
   color: var(--b-ink);
 }
-.forge .pHeadline { text-transform: uppercase; letter-spacing: 0.01em; }
+.veyra .pHeadline { letter-spacing: -0.015em; }
 .pSub {
   font-size: 10px;
   line-height: 1.45;
@@ -996,7 +996,7 @@
   border-radius: 8px;
   margin-top: 3px;
 }
-.forge .pCta { background: var(--b-acc); color: #141414; }
+.veyra .pCta { background: var(--b-acc); color: #14110b; }
 .olive .pCta { background: var(--b-acc); color: #1e2118; }
 .pTrust {
   font-size: 8.5px;
@@ -1013,35 +1013,6 @@
 }
 .aurelia .pVisual {
   background: linear-gradient(160deg, #ddd3c2, #b0a896);
-}
-/* Forge visual: steel beam + concrete mass, orange accent */
-.pBeam {
-  position: absolute;
-  left: -8%;
-  top: 26%;
-  width: 116%;
-  height: 9%;
-  background: linear-gradient(90deg, #4a4f54, #6a7076 45%, #3c4045);
-  transform: rotate(-14deg);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-}
-.pBeam::after {
-  content: "";
-  position: absolute;
-  right: 8%;
-  top: -260%;
-  width: 2px;
-  height: 260%;
-  background: var(--b-acc);
-}
-.pBlock {
-  position: absolute;
-  left: 12%;
-  bottom: -6%;
-  width: 52%;
-  height: 58%;
-  background: linear-gradient(172deg, #33373b, #202326);
-  border-top: 2px solid var(--b-acc);
 }
 /* Olive visual: candle-lit plate */
 .pPlate {
@@ -1323,8 +1294,8 @@
   background-size: cover;
   background-position: center;
 }
-.forge .pVisual {
-  background-image: url("/img/forge.jpg"), linear-gradient(160deg, #33373b, #1b1e21);
+.veyra .pVisual {
+  background-image: url("/img/veyra.jpg"), linear-gradient(160deg, #232a38, #10131a);
   background-size: cover;
   background-position: center;
 }
