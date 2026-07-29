@@ -356,48 +356,47 @@ export default function Stage() {
             <span className={styles.winDot} /><span className={styles.winDot} /><span className={styles.winDot} />
             <span className={styles.urlPill}>
               <svg width="9" height="10" viewBox="0 0 10 12" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="1" y="5" width="8" height="6" rx="1.5"/><path d="M3 5V3.5a2 2 0 014 0V5"/></svg>
-              aurelia-dental.co.uk
+              veyra-estates.com
             </span>
           </div>
-          <div className={`${styles.siteBody} ${styles.aurelia}`}>
+          <div className={`${styles.siteBody} ${styles.veyraSite}`}>
             <div className={styles.siteNav}>
-              <span className={styles.siteLogo}>Aurelia Dental</span>
-              <span className={styles.siteLinks}><i>Treatments</i><i>Cosmetic</i><i>Team</i><i>Fees</i><i>Contact</i></span>
-              <span className={styles.siteNavCta}>Book online</span>
+              <span className={styles.siteLogo}>Veyra Estates</span>
+              <span className={styles.siteLinks}><i>Residences</i><i>Walkthrough</i><i>Viewings</i><i>Journal</i><i>Contact</i></span>
+              <span className={styles.siteNavCta}>Book a viewing</span>
             </div>
             <div className={styles.siteHero}>
               <div className={styles.siteHeroCopy}>
-                <span className={styles.siteEyebrow}>Private dentistry · Same-day appointments</span>
-                <h3>Confidence, engineered.</h3>
-                <p>Modern dentistry designed around your comfort, time and long-term health.</p>
+                <span className={styles.siteEyebrow}>Luxury real estate · 3D walkthrough</span>
+                <h3>Step inside. Before you arrive.</h3>
+                <p>Scroll through the residence room by room — a cinematic 3D walkthrough, from anywhere in the world.</p>
                 <div className={styles.siteCtaRow}>
                   <div className={styles.siteCtaWrap}>
-                    <span className={styles.siteCta}>Book an appointment</span>
+                    <span className={styles.siteCta}>Begin the walkthrough</span>
                     <span className={styles.clickRing} data-el="click" />
                     <span className={styles.leadOrbBirth} data-el="sent">Enquiry received ✓</span>
                   </div>
-                  <span className={styles.siteGhostCta}>Explore treatments</span>
+                  <span className={styles.siteGhostCta}>View the residences</span>
                 </div>
-                <span className={styles.siteTrust}><b>4.9</b> ★★★★★ · 214 verified patient reviews</span>
+                <span className={styles.siteTrust}><b>Cliffside Residence</b> · Private viewings by appointment</span>
               </div>
               <div className={styles.siteVisual}>
                 <div className={styles.siteImage}>
-                  <span className={styles.siteImageArch} />
                   <span className={styles.siteImageGlow} />
                 </div>
                 <div className={styles.availCard}>
-                  <span className={styles.availTitle}>Next available</span>
-                  <span className={styles.availSlot}>Today · 14:30</span>
-                  <span className={styles.availSlot}>Today · 15:15</span>
-                  <span className={`${styles.availSlot} ${styles.availDim}`}>Tue · 09:00</span>
+                  <span className={styles.availTitle}>Private viewings</span>
+                  <span className={styles.availSlot}>Sat · 11:00</span>
+                  <span className={styles.availSlot}>Sun · 14:00</span>
+                  <span className={`${styles.availSlot} ${styles.availDim}`}>Mon · 10:00</span>
                 </div>
               </div>
             </div>
             <div className={styles.siteStrip}>
-              <span className={styles.stripItem}>Whitening</span>
-              <span className={styles.stripItem}>Invisible aligners</span>
-              <span className={styles.stripItem}>Implants</span>
-              <span className={styles.stripReview}>“Painless, precise, on time.” — verified patient</span>
+              <span className={styles.stripItem}>3D walkthrough</span>
+              <span className={styles.stripItem}>Drone film</span>
+              <span className={styles.stripItem}>Interior tour</span>
+              <span className={styles.stripReview}>“We knew from the walkthrough.” — private buyer</span>
             </div>
           </div>
           <div className={styles.cursor} data-el="cursor">
@@ -406,18 +405,18 @@ export default function Stage() {
             </svg>
           </div>
         </div>
-        <div className={`${styles.phone} ${styles.aurelia}`}>
+        <div className={`${styles.phone} ${styles.veyraSite}`}>
           <div className={styles.phoneNotch} />
-          <span className={styles.phoneBrand}>Aurelia Dental</span>
-          <div className={styles.phoneHero}><span className={styles.siteImageArch} /></div>
-          <span className={styles.phoneTitle}>Book your visit</span>
+          <span className={styles.phoneBrand}>Veyra Estates</span>
+          <div className={styles.phoneHero} />
+          <span className={styles.phoneTitle}>Book a private viewing</span>
           <div className={styles.phoneSlots}>
-            <span className={styles.phoneSlotOn}>14:30</span>
-            <span className={styles.phoneSlot}>15:15</span>
-            <span className={styles.phoneSlot}>16:00</span>
+            <span className={styles.phoneSlotOn}>Sat 11:00</span>
+            <span className={styles.phoneSlot}>Sun 14:00</span>
+            <span className={styles.phoneSlot}>Mon 10:00</span>
           </div>
-          <div className={styles.phoneCta}>Confirm — Today 14:30</div>
-          <span className={styles.phoneConfirm}>✓ Reminder by text</span>
+          <div className={styles.phoneCta}>Confirm — Sat 11:00</div>
+          <span className={styles.phoneConfirm}>✓ Concierge will meet you</span>
         </div>
       </div>
 

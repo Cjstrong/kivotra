@@ -703,21 +703,32 @@
   --b-font: Georgia, "Times New Roman", serif;
 }
 
-/* ---------- the Aurelia website scene, fully dressed ---------- */
+/* ---------- the Veyra website scene, fully dressed ----------
+   Dark, cinematic, luxurious — the scene wears the same palette
+   as the .veyra portfolio identity but keeps its own selectors. */
+.veyraSite {
+  --b-bg: #0e1118;
+  --b-bg2: #171c26;
+  --b-ink: #ece9e2;
+  --b-mut: #8b8fa0;
+  --b-acc: #d9a05b;
+  --b-card: #141924;
+  --b-font: var(--font-display);
+}
 .urlPill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
-.siteBody.aurelia {
+.siteBody.veyraSite {
   background: linear-gradient(178deg, var(--b-bg), var(--b-bg2));
   color: var(--b-ink);
 }
-.aurelia .siteLogo { color: var(--b-ink); }
-.aurelia .siteLinks i { color: var(--b-mut); }
-.aurelia .siteNavCta {
-  color: #fff;
-  background: var(--b-ink);
+.veyraSite .siteLogo { color: var(--b-ink); letter-spacing: 0.06em; }
+.veyraSite .siteLinks i { color: var(--b-mut); }
+.veyraSite .siteNavCta {
+  color: #14110b;
+  background: var(--b-acc);
 }
 .siteEyebrow {
   display: block;
@@ -728,17 +739,17 @@
   color: var(--b-acc);
   margin-bottom: 10px;
 }
-.aurelia .siteHeroCopy h3 { color: var(--b-ink); }
-.aurelia .siteHeroCopy p { color: var(--b-mut); }
+.veyraSite .siteHeroCopy h3 { color: var(--b-ink); }
+.veyraSite .siteHeroCopy p { color: var(--b-mut); }
 .siteCtaRow {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-.aurelia .siteCta {
-  color: #fff;
-  background: var(--b-ink);
-  box-shadow: 0 12px 26px -12px rgba(38, 41, 42, 0.55);
+.veyraSite .siteCta {
+  color: #14110b;
+  background: var(--b-acc);
+  box-shadow: 0 12px 28px -10px rgba(217, 160, 91, 0.45);
 }
 .siteGhostCta {
   font-size: 13px;
@@ -748,23 +759,21 @@
   padding-bottom: 2px;
   margin-top: 18px;
 }
-.aurelia .siteTrust { color: var(--b-mut); }
-.aurelia .siteTrust b { color: var(--b-ink); font-weight: 600; }
-.aurelia .clickRing { border-color: rgba(38, 41, 42, 0.8); }
+.veyraSite .siteTrust { color: var(--b-mut); }
+.veyraSite .siteTrust b { color: var(--b-ink); font-weight: 600; }
+.veyraSite .clickRing { border-color: rgba(236, 233, 226, 0.8); }
 
 .siteVisual {
   position: relative;
 }
-.aurelia .siteImage {
+.veyraSite .siteImage {
   position: relative;
   height: clamp(170px, 18vw, 230px);
   border-radius: 14px;
   overflow: hidden;
   border: none;
-  background:
-    radial-gradient(90% 70% at 72% 22%, #fdfbf6 0%, transparent 55%),
-    linear-gradient(160deg, #ddd3c2 0%, #c9bfae 40%, #a8a394 100%);
-  box-shadow: inset 0 0 0 1px rgba(38, 41, 42, 0.08);
+  background: linear-gradient(160deg, #232a38 0%, #141924 60%, #0e1118 100%);
+  box-shadow: inset 0 0 0 1px rgba(236, 233, 226, 0.08);
 }
 .siteImageArch {
   position: absolute;
@@ -809,8 +818,8 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--b-ink);
-  background: rgba(124, 146, 133, 0.14);
-  border: 1px solid rgba(124, 146, 133, 0.35);
+  background: rgba(217, 160, 91, 0.12);
+  border: 1px solid rgba(217, 160, 91, 0.35);
   border-radius: 7px;
   padding: 4px 10px;
 }
@@ -824,14 +833,14 @@
   gap: 10px;
   margin-top: 22px;
   padding-top: 16px;
-  border-top: 1px solid rgba(38, 41, 42, 0.12);
+  border-top: 1px solid rgba(236, 233, 226, 0.12);
 }
 .stripItem {
   font-size: 11.5px;
   font-weight: 600;
   color: var(--b-ink);
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(38, 41, 42, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(236, 233, 226, 0.14);
   padding: 6px 12px;
   border-radius: 999px;
 }
@@ -842,12 +851,12 @@
   color: var(--b-mut);
 }
 
-/* Aurelia phone — booking flow */
-.phone.aurelia {
+/* Veyra phone — private-viewing flow */
+.phone.veyraSite {
   background: linear-gradient(178deg, var(--b-bg), var(--b-bg2));
-  border-color: rgba(38, 41, 42, 0.2);
+  border-color: rgba(236, 233, 226, 0.2);
 }
-.phone.aurelia .phoneNotch { background: rgba(38, 41, 42, 0.25); }
+.phone.veyraSite .phoneNotch { background: rgba(236, 233, 226, 0.25); }
 .phoneBrand {
   font-family: var(--font-display);
   font-weight: 600;
@@ -855,11 +864,11 @@
   color: var(--b-ink);
   text-align: center;
 }
-.phone.aurelia .phoneHero {
+.phone.veyraSite .phoneHero {
   position: relative;
   overflow: hidden;
   border: none;
-  background: linear-gradient(160deg, #ddd3c2, #b3ab9a);
+  background: linear-gradient(160deg, #232a38, #10131a);
 }
 .phoneTitle {
   font-size: 11px;
@@ -879,16 +888,16 @@
   padding: 6px 0;
   border-radius: 7px;
   color: var(--b-ink);
-  border: 1px solid rgba(38, 41, 42, 0.18);
+  border: 1px solid rgba(236, 233, 226, 0.18);
 }
 .phoneSlotOn {
   background: var(--b-ink);
-  color: #fff;
+  color: #12151c;
   border-color: var(--b-ink);
 }
-.phone.aurelia .phoneCta {
+.phone.veyraSite .phoneCta {
   background: var(--b-acc);
-  color: #fff;
+  color: #14110b;
 }
 .phoneConfirm {
   font-size: 9.5px;
@@ -1304,18 +1313,16 @@
   background-size: cover;
   background-position: center;
 }
-.aurelia .siteImage {
-  background-image: url("/img/aurelia.jpg"),
-    radial-gradient(90% 70% at 72% 22%, #fdfbf6 0%, transparent 55%),
-    linear-gradient(160deg, #ddd3c2 0%, #c9bfae 40%, #a8a394 100%);
+.veyraSite .siteImage {
+  background-image: url("/img/veyra.jpg"),
+    linear-gradient(160deg, #232a38 0%, #141924 60%, #0e1118 100%);
   background-size: cover;
-  background-position: center 30%;
+  background-position: center 65%;
 }
-.aurelia .siteImage .siteImageArch { opacity: 0.25; }
-.phone.aurelia .phoneHero {
-  background-image: url("/img/aurelia.jpg"), linear-gradient(160deg, #ddd3c2, #b3ab9a);
+.phone.veyraSite .phoneHero {
+  background-image: url("/img/veyra-night.jpg"), linear-gradient(160deg, #232a38, #10131a);
   background-size: cover;
-  background-position: center 24%;
+  background-position: center;
 }
 
 /* ============================================================
