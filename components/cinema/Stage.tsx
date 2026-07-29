@@ -18,6 +18,24 @@ import styles from "./Stage.module.css";
 
 const D = 100; // master duration in timeline units
 
+/* The system's geometry — one coordinate space (viewBox 1200×620) shared by
+   the SVG fibre paths and the absolutely-positioned modules, so the signal
+   always meets its module. Modules 0–6 arc over the core at (600, 470). */
+const SYSTEM_MODS: [number, number][] = [
+  [120, 300], [280, 180], [450, 110], [600, 90], [750, 110], [920, 180], [1080, 300],
+];
+/* Segments: 0 = core→M1, 1–6 = module→module, 7 = M7→core (the return). */
+const SYSTEM_SEGS = [
+  "M 552 428 Q 330 408 134 334",
+  "M 136 268 Q 175 208 246 190",
+  "M 316 162 Q 372 132 418 122",
+  "M 484 102 Q 540 92 570 90",
+  "M 630 90 Q 686 92 718 102",
+  "M 784 122 Q 830 132 886 162",
+  "M 956 190 Q 1026 208 1064 268",
+  "M 1066 334 Q 870 408 648 428",
+];
+
 export default function Stage() {
   const root = useRef<HTMLDivElement>(null);
 
@@ -91,21 +109,29 @@ export default function Stage() {
       gsap.set("[data-el='cursor']", { autoAlpha: 0, x: 260, y: -140, scale: 1 });
       gsap.set("[data-el='click']", { autoAlpha: 0, scale: 0.4 });
       gsap.set("[data-el='sent']", { autoAlpha: 0, y: 8 });
-      // The orb is born where the website's form sits, then glides to the rail.
+      // The orb is born where the film's CTA sits, then glides to the core.
       gsap.set(
         "[data-el='orb']",
         mobile
-          ? { autoAlpha: 0, scale: 0.2, left: "50%", top: "-36px" }
-          : { autoAlpha: 0, scale: 0.2, left: "31%", top: "96px" }
+          ? { autoAlpha: 0, scale: 0.2, left: "50%", top: "30%" }
+          : { autoAlpha: 0, scale: 0.2, left: "13%", top: "72%" }
       );
-      gsap.set(qa("[data-chip]"), { autoAlpha: 0, y: 40 });
-      gsap.set(qa("[data-chipglow]"), { autoAlpha: 0 });
-      gsap.set(
-        "[data-el='rail']",
-        mobile
-          ? { scaleX: 1, scaleY: 0, transformOrigin: "center top" }
-          : { scaleX: 0, scaleY: 1, transformOrigin: "left center" }
-      );
+      // The system sleeps: silhouette only. Fibre paths are measured so the
+      // lit overlays and ring sweeps can be scrubbed by dashoffset.
+      gsap.set("[data-el='system']", { autoAlpha: 0 });
+      gsap.set("[data-el='coreglow']", { autoAlpha: 0 });
+      gsap.set("[data-el='pulse']", { autoAlpha: 0 });
+      qa("[data-lit]").forEach((p) => {
+        const len = (p as unknown as SVGPathElement).getTotalLength();
+        gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+      });
+      const RING_CORE = 2 * Math.PI * 92;
+      const RING_MOD = 2 * Math.PI * 15;
+      gsap.set("[data-el='corering']", { strokeDasharray: RING_CORE, strokeDashoffset: RING_CORE });
+      qa("[data-modring]").forEach((c) => gsap.set(c, { strokeDasharray: RING_MOD, strokeDashoffset: RING_MOD }));
+      qa("[data-mod]").forEach((m) => gsap.set(m, { opacity: 0.42 }));
+      qa("[data-modinner]").forEach((m) => gsap.set(m, { autoAlpha: 0 }));
+      qa("[data-modstatus]").forEach((m) => gsap.set(m, { autoAlpha: 0, scale: 0.3 }));
       gsap.set("[data-el='dash']", { autoAlpha: 0, y: 70, scale: 0.96 });
       gsap.set(qa("[data-card]"), { autoAlpha: 0, y: 34 });
       gsap.set("[data-el='chartline']", { strokeDashoffset: 1 });
@@ -172,43 +198,68 @@ export default function Stage() {
       tl.to("[data-el='orb']", { autoAlpha: 1, scale: 1, duration: 2, ease: "back.out(2)" }, 34.2);
       tl.to("[data-el='cursor']", { autoAlpha: 0, duration: 1 }, 34.4);
 
-      /* SCENE 4 — the site leaves; the lead travels the pipeline. */
+      /* SCENE 4 — the site leaves; the enquiry enters the machine.
+         Dormant silhouette → core boot → the signal activates all seven
+         modules in order → the circuit closes back at the core. */
       copyOut(3, 38);
       tl.to("[data-el='site']", { autoAlpha: 0, y: -70, scale: 0.96, duration: 4.5, ease: "power3.in" }, 39);
       tl.to("[data-el='sent']", { autoAlpha: 0, duration: 1.5 }, 39);
       tl.to(chan, { kParked: 1, duration: 5, ease: "power2.inOut" }, 39.5);
-      // the orb glides from the form to the start of the rail —
-      // horizontal pipeline on desktop, a descending column on mobile
-      if (mobile) {
-        tl.to("[data-el='orb']", { left: "50%", top: "0%", duration: 5, ease: "power2.inOut" }, 41);
-        tl.to("[data-el='rail']", { scaleY: 1, duration: 6, ease: "power2.inOut" }, 43);
-      } else {
-        tl.to("[data-el='orb']", { left: "0%", top: "50%", duration: 5, ease: "power2.inOut" }, 41);
-        tl.to("[data-el='rail']", { scaleX: 1, duration: 6, ease: "power2.inOut" }, 43);
-      }
-      tl.to(qa("[data-chip]"), { autoAlpha: 1, y: 0, duration: 2.6, stagger: 0.55, ease: "power3.out" }, 43.5);
+      // dormant system reveal — silhouette, breathing, nothing active
+      tl.to("[data-el='system']", { autoAlpha: 1, duration: 3, ease: "power2.out" }, 40);
+      // the orb (the enquiry) glides into the core
+      tl.to(
+        "[data-el='orb']",
+        mobile
+          ? { left: "50%", top: "40%", duration: 3.6, ease: "power2.inOut" }
+          : { left: "50%", top: "58%", duration: 3.6, ease: "power2.inOut" },
+        41
+      );
       copyIn(4, 44);
+      // boot: the orb is absorbed, the ring sweeps once, the core lights
+      tl.to("[data-el='orb']", { scale: 0.25, autoAlpha: 0, duration: 1.4, ease: "power2.in" }, 44.2);
+      tl.to("[data-el='corering']", { strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut" }, 44.6);
+      tl.to("[data-el='coreglow']", { autoAlpha: 1, duration: 2.2, ease: "power2.out" }, 45.4);
 
-      // station-to-station travel: move → seat → station lights
-      const chips = qa("[data-chip]");
-      const n = chips.length;
-      chips.forEach((_, i) => {
-        const at = 47 + i * 1.75;
+      // the signal: per stage — pulse rides the fibre path, the module's
+      // ring spins once, its internals light, its status point locks in
+      const pulse = q("[data-el='pulse']");
+      const rideSeg = (seg: number, at: number, dur: number) => {
+        const path = q(`[data-lit='${seg}']`) as unknown as SVGPathElement | null;
+        if (!path || !pulse) return;
+        const prox = { p: 0 };
+        tl.to(`[data-lit='${seg}']`, { strokeDashoffset: 0, duration: dur, ease: "none" }, at);
         tl.to(
-          "[data-el='orb']",
-          mobile
-            ? { top: `${(i / (n - 1)) * 100}%`, duration: 1.15, ease: "power2.inOut" }
-            : { left: `${(i / (n - 1)) * 100}%`, duration: 1.15, ease: "power2.inOut" },
+          prox,
+          {
+            p: 1,
+            duration: dur,
+            ease: "none",
+            onUpdate: () => {
+              const pt = path.getPointAtLength(prox.p * path.getTotalLength());
+              gsap.set(pulse, { attr: { cx: pt.x, cy: pt.y } });
+            },
+          },
           at
         );
-        tl.to(`[data-chipglow='${i}']`, { autoAlpha: 1, duration: 0.7, ease: "power2.out" }, at + 0.95);
+      };
+      tl.to("[data-el='pulse']", { autoAlpha: 1, duration: 0.4 }, 47.4);
+      WORKFLOW_STEPS.forEach((_, i) => {
+        const at = 47.6 + i * 1.7;
+        rideSeg(i, at, 0.95);
+        tl.to(`[data-modring='${i}']`, { strokeDashoffset: 0, duration: 0.55, ease: "power1.inOut" }, at + 0.9);
+        tl.to(`[data-mod='${i}']`, { opacity: 1, duration: 0.5, ease: "power2.out" }, at + 1.05);
+        tl.to(`[data-modinner='${i}']`, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, at + 1.1);
+        tl.to(`[data-modstatus='${i}']`, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2.5)" }, at + 1.25);
       });
+      // the return: revenue closes the circuit; the whole system holds lit
+      rideSeg(7, 59.2, 1.1);
+      tl.to("[data-el='pulse']", { autoAlpha: 0, duration: 0.5 }, 60.2);
+      tl.to("[data-el='coreglow']", { scale: 1.15, duration: 1.2, ease: "power2.out" }, 60.2);
 
       /* SCENE 5 — everything folds into the command centre. */
-      copyOut(4, 60);
-      tl.to(qa("[data-chip]"), { autoAlpha: 0, y: -28, duration: 2.2, stagger: 0.18, ease: "power3.in" }, 61);
-      tl.to("[data-el='rail']", { autoAlpha: 0, duration: 2.4, ease: "power3.in" }, 61.5);
-      tl.to("[data-el='orb']", { autoAlpha: 0, scale: 0.2, duration: 2, ease: "power2.in" }, 63);
+      copyOut(4, 60.6);
+      tl.to("[data-el='system']", { autoAlpha: 0, y: -44, duration: 2.6, ease: "power3.in" }, 61.6);
       tl.to("[data-el='dash']", { autoAlpha: 1, y: 0, scale: 1, duration: 4.5, ease: "power3.out" }, 64.5);
       tl.to(qa("[data-card]"), { autoAlpha: 1, y: 0, duration: 2.4, stagger: 0.5, ease: "power3.out" }, 65.5);
       tl.to("[data-el='chartline']", { strokeDashoffset: 0, duration: 5, ease: "power2.inOut" }, 67);
@@ -423,19 +474,48 @@ export default function Stage() {
         </div>
       </div>
 
-      {/* ---- scene 4: the pipeline ---- */}
-      <div className={styles.pipeline} aria-hidden="true">
-        <div className={styles.rail} data-el="rail" />
-        <div className={styles.orb} data-el="orb"><span /></div>
-        <div className={styles.chips}>
-          {WORKFLOW_STEPS.map((step, i) => (
-            <div className={styles.chip} data-chip={i} key={step} style={{ "--lift": `${[0, -16, 10, -12, 8, -14, 0][i]}px` } as React.CSSProperties}>
-              <span className={styles.chipGlow} data-chipglow={i} />
-              <span className={styles.chipNo}>{String(i + 1).padStart(2, "0")}</span>
-              {step}
-            </div>
+      {/* ---- scene 4: the system — a premium business machine powering on.
+           The lead orb is absorbed by the core (boot), then a violet signal
+           travels the fibre paths and activates all seven modules in order,
+           returning to the core to close the circuit. ---- */}
+      <div className={styles.orb} data-el="orb" aria-hidden="true"><span /></div>
+      <div className={styles.system} data-el="system" aria-hidden="true">
+        <span className={styles.sysBoard} />
+        <svg className={styles.sysPaths} viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid meet">
+          {SYSTEM_SEGS.map((d, i) => (
+            <g key={i}>
+              <path className={styles.sysTrace} d={d} />
+              <path className={styles.sysLit} data-lit={i} d={d} />
+            </g>
           ))}
+          <circle className={styles.sysPulse} data-el="pulse" r="5" cx="600" cy="470" />
+        </svg>
+        <div className={styles.sysCore} data-el="core">
+          <svg className={styles.sysCoreRing} viewBox="0 0 200 200">
+            <circle className={styles.sysCoreRingBase} cx="100" cy="100" r="92" />
+            <circle className={styles.sysCoreRingLit} data-el="corering" cx="100" cy="100" r="92" />
+          </svg>
+          <span className={styles.sysCoreFace} />
+          <i className={styles.sysCoreGlow} data-el="coreglow" />
+          <span className={styles.sysCoreLabel}>Business core</span>
         </div>
+        {WORKFLOW_STEPS.map((step, i) => (
+          <div
+            className={styles.sysMod}
+            data-mod={i}
+            key={step}
+            style={{ "--mx": SYSTEM_MODS[i][0], "--my": SYSTEM_MODS[i][1] } as React.CSSProperties}
+          >
+            <i className={styles.sysModInner} data-modinner={i} />
+            <svg className={styles.sysModRing} viewBox="0 0 40 40">
+              <circle className={styles.sysModRingBase} cx="20" cy="20" r="15" />
+              <circle className={styles.sysModRingLit} data-modring={i} cx="20" cy="20" r="15" />
+            </svg>
+            <span className={styles.sysModNo}>{String(i + 1).padStart(2, "0")}</span>
+            <span className={styles.sysModLabel}>{step}</span>
+            <i className={styles.sysModStatus} data-modstatus={i} />
+          </div>
+        ))}
       </div>
 
       {/* ---- scene 5: the command centre ---- */}
