@@ -164,11 +164,30 @@
   visibility: hidden;
   will-change: transform, opacity;
 }
-.filmStage {
+/* A project card — device-scale, the stage stays visible around it. */
+.filmCard {
   position: absolute;
-  inset: 0;
+  left: 50%;
+  top: 45%;
+  width: min(820px, 64vw);
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
   overflow: hidden;
   background: #0a0c0e;
+  border: 1px solid var(--edge-strong);
+  box-shadow: 0 70px 150px -50px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  will-change: transform;
+}
+.filmTag {
+  position: absolute;
+  left: 4%;
+  bottom: 4.5%;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: rgba(236, 233, 226, 0.55);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
 }
 .filmVideo {
   position: absolute;
@@ -190,13 +209,13 @@
 .filmTitle {
   position: absolute;
   left: 6%;
-  bottom: 16%;
+  bottom: 18%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(34px, 4.6vw, 74px);
+  font-size: clamp(20px, 2.6vw, 42px);
   letter-spacing: 0.34em;
   color: rgba(236, 233, 226, 0.9);
   mix-blend-mode: soft-light;
@@ -216,12 +235,12 @@
 /* facts in illuminated glass — belongs to the architecture */
 .filmPanel {
   position: absolute;
-  right: 6%;
-  bottom: 15%;
+  right: 5%;
+  bottom: 14%;
   display: flex;
   flex-direction: column;
-  gap: 13px;
-  padding: 18px 22px;
+  gap: 8px;
+  padding: 12px 15px;
   border-radius: 14px;
   background: rgba(14, 17, 24, 0.38);
   border: 1px solid rgba(236, 233, 226, 0.16);
@@ -253,20 +272,108 @@
 /* the CTA is an illuminated plate by the water */
 .filmCtaWrap {
   position: absolute;
-  left: 6%;
-  bottom: 15%;
+  left: 5%;
+  bottom: 14%;
   visibility: hidden;
 }
 .filmCta {
   display: inline-flex;
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #14110b;
   background: linear-gradient(178deg, #e3ad67, #d9a05b);
-  padding: 13px 26px;
-  border-radius: 12px;
-  box-shadow: 0 0 44px rgba(217, 160, 91, 0.38), 0 18px 40px -18px rgba(0, 0, 0, 0.8),
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 34px rgba(217, 160, 91, 0.35), 0 14px 32px -14px rgba(0, 0, 0, 0.8),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* ---- Haven Wellness — filler concept card, calm spa dress ---- */
+.havenCard {
+  background: linear-gradient(178deg, #f3efe6, #e9e3d6);
+}
+.havenBody {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 4.5% 5%;
+  color: #2b2e2a;
+}
+.havenNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 3.5%;
+}
+.havenNav b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(13px, 1.3vw, 19px);
+  letter-spacing: 0.02em;
+}
+.havenNav span {
+  font-size: clamp(9px, 0.9vw, 13px);
+  color: #8b8878;
+}
+.havenNav i {
+  font-style: normal;
+  font-size: clamp(9px, 0.9vw, 13px);
+  font-weight: 600;
+  color: #f3efe6;
+  background: #2b2e2a;
+  padding: 0.6em 1.4em;
+  border-radius: 999px;
+}
+.havenHero {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 4%;
+  align-items: center;
+}
+.havenEyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(7.5px, 0.75vw, 10px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #7c9285;
+  margin-bottom: 0.9em;
+}
+.havenHero h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(18px, 2.2vw, 34px);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.45em;
+}
+.havenHero p {
+  font-size: clamp(10px, 1vw, 14px);
+  line-height: 1.5;
+  color: #6d6a5d;
+  max-width: 30ch;
+  margin: 0 0 1.4em;
+}
+.havenCta {
+  display: inline-flex;
+  font-size: clamp(10px, 1vw, 13.5px);
+  font-weight: 600;
+  color: #f3efe6;
+  background: #7c9285;
+  padding: 0.85em 1.8em;
+  border-radius: 10px;
+}
+.havenVisual {
+  display: block;
+  height: 82%;
+  border-radius: 12px;
+  background: url("/img/haven.jpg") center / cover no-repeat, linear-gradient(160deg, #ddd3c2, #b0a896);
+  box-shadow: inset 0 0 0 1px rgba(43, 46, 42, 0.08);
+}
+.havenCard .filmTag {
+  color: rgba(43, 46, 42, 0.5);
+  text-shadow: none;
 }
 .clickRing {
   position: absolute;
@@ -297,8 +404,8 @@
 }
 .cursor {
   position: absolute;
-  left: 13%;
-  bottom: 19%;
+  left: 26%;
+  bottom: 37%;
   z-index: 3;
   visibility: hidden;
   filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
@@ -734,17 +841,16 @@
   .copy {
     bottom: clamp(32px, 6vh, 64px);
   }
+  .filmCard {
+    width: min(86vw, 720px);
+  }
   .filmTitle {
-    left: 18px;
-    bottom: 20%;
-    font-size: clamp(28px, 7vw, 40px);
+    font-size: clamp(16px, 3.4vw, 26px);
     letter-spacing: 0.26em;
   }
   .filmPanel {
-    right: 18px;
-    bottom: 22%;
-    padding: 14px 16px;
-    gap: 10px;
+    padding: 10px 12px;
+    gap: 7px;
   }
   .system {
     width: calc(100vw - 36px);
@@ -1266,19 +1372,24 @@
     font-size: 10px;
   }
 
-  /* the film: full-bleed on mobile too — panel yields to the CTA */
+  /* the project cards on mobile: near full width, panel yields to CTA */
+  .filmCard {
+    width: calc(100vw - 32px);
+    top: 42%;
+  }
   .filmTitle {
-    left: 16px;
-    bottom: 24%;
-    font-size: 26px;
+    font-size: 15px;
     letter-spacing: 0.22em;
   }
   .filmPanel {
     display: none;
   }
   .filmCtaWrap {
-    left: 16px;
-    bottom: 18%;
+    left: 6%;
+    bottom: 12%;
+  }
+  .filmTag {
+    font-size: 7.5px;
   }
 
   /* the system: authored vertical edit — core on top, the signal

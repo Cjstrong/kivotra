@@ -118,6 +118,9 @@ export default function Stage() {
           .to(heroBits, { autoAlpha: 1, y: 0, duration: 1.6, stagger: 0.22, ease: "power3.out" }, 1.5);
       }
       gsap.set("[data-el='site']", { autoAlpha: 0, y: 60, scale: 0.94 });
+      // project cards: Veyra centre-stage, Haven waiting off right
+      gsap.set("[data-el='card1']", { xPercent: -50, yPercent: -50 });
+      gsap.set("[data-el='card2']", { xPercent: 115, yPercent: -50 });
       gsap.set("[data-el='film2']", { autoAlpha: 0 });
       gsap.set("[data-el='filmtitle']", { autoAlpha: 0, y: 26 });
       gsap.set("[data-el='filmpanel']", { autoAlpha: 0, y: 30 });
@@ -130,7 +133,7 @@ export default function Stage() {
         "[data-el='orb']",
         mobile
           ? { autoAlpha: 0, scale: 0.2, left: "50%", top: "30%" }
-          : { autoAlpha: 0, scale: 0.2, left: "13%", top: "72%" }
+          : { autoAlpha: 0, scale: 0.2, left: "27%", top: "60%" }
       );
       // The system sleeps: silhouette only. Fibre paths are measured so the
       // lit overlays and ring sweeps can be scrubbed by dashoffset.
@@ -196,6 +199,12 @@ export default function Stage() {
       tl.to(scrub, { p1: 1, duration: 13, ease: "none", onUpdate: () => seek(film1, scrub.p1) }, 17.5);
       tl.to(scrub, { p2: 1, duration: 7.4, ease: "none", onUpdate: () => seek(film2, scrub.p2) }, 30.6);
       tl.to("[data-el='film2']", { autoAlpha: 1, duration: 1.1, ease: "power1.inOut" }, 30.2);
+      // the card breathes: up ~25% while the film runs, settles before the click
+      tl.to("[data-el='card1']", { scale: 1.25, duration: 6, ease: "power1.inOut" }, 20);
+      tl.to("[data-el='card1']", { scale: 1, duration: 3.5, ease: "power2.inOut" }, 26.5);
+      // handoff: Veyra slides off left, the next project arrives from the right
+      tl.to("[data-el='card1']", { xPercent: -210, duration: 3.4, ease: "power2.inOut" }, 35);
+      tl.to("[data-el='card2']", { xPercent: -50, duration: 3.4, ease: "power2.inOut" }, 35.3);
       // the title reads as if set into the concrete during the approach
       tl.to("[data-el='filmtitle']", { autoAlpha: 1, y: 0, duration: 2.8, ease: "power3.out" }, 20.5);
       tl.to("[data-el='filmtitle']", { autoAlpha: 0, y: -18, duration: 2, ease: "power3.in" }, 27.2);
@@ -470,13 +479,15 @@ export default function Stage() {
         </div>
       </div>
 
-      {/* ---- scene 2/3: the work itself — inside the Veyra film.
-           No browser chrome, no mockup: a continuous scroll-scrubbed
-           walkthrough of the project. Approach → door → interior → pool.
-           The lead is still born here (click → sent → orb), so the film
-           hands off to the pipeline exactly as before. ---- */}
+      {/* ---- scene 2/3: the work — project cards on the stage.
+           The Veyra walkthrough plays INSIDE a device-scale card with the
+           stage still visible around it: the card breathes up ~25% while
+           the film runs, settles back, takes the click (lead born), then
+           slides off left as the next project (Haven, filler) arrives
+           from the right. ---- */}
       <div className={styles.film} data-el="site" aria-hidden="true">
-        <div className={styles.filmStage}>
+        {/* PROJECT 01 — Veyra Estates */}
+        <div className={styles.filmCard} data-el="card1">
           <video
             className={styles.filmVideo}
             data-el="film1"
@@ -496,23 +507,43 @@ export default function Stage() {
             preload="auto"
           />
           <span className={styles.filmGrade} />
-          {/* in-world: the title reads as if set into the concrete */}
           <span className={styles.filmTitle} data-el="filmtitle">
             VEYRA<i>Cliffside Residence — one continuous walkthrough</i>
           </span>
-          {/* in-world: an illuminated glass panel carries the facts */}
           <div className={styles.filmPanel} data-el="filmpanel">
             <span><b>840 m²</b><i>six rooms, one shot</i></span>
             <span><b>Scroll-driven</b><i>the camera walks with you</i></span>
             <span><b>Website · 3D · Automation</b><i>concept build by Kivotra</i></span>
           </div>
-          {/* in-world: the CTA is an illuminated plate by the water */}
           <div className={styles.filmCtaWrap} data-el="filmcta">
             <span className={styles.filmCta}>Book a similar project</span>
             <span className={styles.clickRing} data-el="click" />
             <span className={styles.leadOrbBirth} data-el="sent">Enquiry received ✓</span>
           </div>
+          <span className={styles.filmTag}>PROJECT 01 — VEYRA ESTATES · CONCEPT BUILD</span>
         </div>
+
+        {/* PROJECT 02 — Haven Wellness (filler concept) */}
+        <div className={`${styles.filmCard} ${styles.havenCard}`} data-el="card2">
+          <div className={styles.havenBody}>
+            <div className={styles.havenNav}>
+              <b>Haven</b>
+              <span>Treatments · Spa · Memberships</span>
+              <i>Book</i>
+            </div>
+            <div className={styles.havenHero}>
+              <div>
+                <span className={styles.havenEyebrow}>Wellness centre · Day spa</span>
+                <h3>Breathe. Begin again.</h3>
+                <p>Treatments, thermal suites and quiet rooms — designed around slowing down.</p>
+                <span className={styles.havenCta}>Book a treatment</span>
+              </div>
+              <span className={styles.havenVisual} />
+            </div>
+          </div>
+          <span className={styles.filmTag}>PROJECT 02 — HAVEN WELLNESS · CONCEPT BUILD</span>
+        </div>
+
         <div className={styles.cursor} data-el="cursor">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff" stroke="#0a0c0e" strokeWidth="1.4">
             <path d="M5 3l14 8-6.5 1.5L9 19z" />
