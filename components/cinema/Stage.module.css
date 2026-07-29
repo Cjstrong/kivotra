@@ -100,119 +100,121 @@
 }
 
 /* ---------- scene 2/3 · the website ---------- */
-.site {
+/* ============================================================
+   THE FILM — scene 2/3 is a full-bleed, scroll-scrubbed
+   walkthrough. No chrome, no mockup: the visitor is inside
+   the project. Information lives in the world, not on top.
+   ============================================================ */
+.film {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(18px, 2.4vw, 36px);
   z-index: 4;
-  padding-bottom: 10vh;
   visibility: hidden;
   will-change: transform, opacity;
 }
-.browser {
-  position: relative;
-  width: min(760px, 62vw);
-  border-radius: 14px;
-  background: linear-gradient(170deg, #14171b, #0d1013);
-  border: 1px solid var(--edge);
-  box-shadow: 0 60px 140px -40px rgba(0, 0, 0, 0.9),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+.filmStage {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
+  background: #0a0c0e;
 }
-.browserBar {
+.filmVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* cinematic grade: gentle vignette + a whisper of letterbox */
+.filmGrade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 12, 14, 0.55) 0%, transparent 14%, transparent 82%, rgba(10, 12, 14, 0.6) 100%),
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(10, 12, 14, 0.42) 100%);
+}
+/* the title, set into the world — letterpressed, not floated */
+.filmTitle {
+  position: absolute;
+  left: 6%;
+  bottom: 16%;
   display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--edge);
-  background: rgba(255, 255, 255, 0.025);
-}
-.winDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.16);
-}
-.urlPill {
-  margin-left: 12px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--ink-3);
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--edge);
-  padding: 4px 14px;
-  border-radius: 999px;
-}
-.siteBody {
-  padding: 26px clamp(20px, 3vw, 40px) 34px;
-}
-.siteNav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 22px;
-}
-.siteLogo {
+  flex-direction: column;
+  gap: 10px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 0.02em;
-  color: var(--ink);
+  font-size: clamp(34px, 4.6vw, 74px);
+  letter-spacing: 0.34em;
+  color: rgba(236, 233, 226, 0.9);
+  mix-blend-mode: soft-light;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  visibility: hidden;
 }
-.siteLinks {
-  display: flex;
-  gap: 22px;
-}
-.siteLinks i {
+.filmTitle i {
   font-style: normal;
-  font-size: 13px;
-  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(236, 233, 226, 0.75);
+  mix-blend-mode: normal;
 }
-.siteNavCta {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0a0c0e;
-  background: #eef1f2;
-  padding: 7px 16px;
-  border-radius: 999px;
+/* facts in illuminated glass — belongs to the architecture */
+.filmPanel {
+  position: absolute;
+  right: 6%;
+  bottom: 15%;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(14, 17, 24, 0.38);
+  border: 1px solid rgba(236, 233, 226, 0.16);
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  visibility: hidden;
 }
-.siteHero {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 28px;
-  align-items: center;
+.filmPanel span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-.siteHeroCopy h3 {
+.filmPanel b {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(22px, 2.4vw, 32px);
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  margin: 0 0 10px;
+  font-size: 14.5px;
+  letter-spacing: 0.01em;
+  color: #ece9e2;
 }
-.siteHeroCopy p {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--ink-2);
-  max-width: 34ch;
+.filmPanel i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(217, 160, 91, 0.85);
 }
-.siteCtaWrap {
-  position: relative;
-  display: inline-flex;
-  margin-top: 18px;
+/* the CTA is an illuminated plate by the water */
+.filmCtaWrap {
+  position: absolute;
+  left: 6%;
+  bottom: 15%;
+  visibility: hidden;
 }
-.siteCta {
+.filmCta {
   display: inline-flex;
   font-size: 14px;
   font-weight: 600;
-  color: #0a0c0e;
-  background: #f2f5f6;
-  padding: 11px 22px;
-  border-radius: 10px;
-  box-shadow: 0 10px 26px -10px rgba(255, 255, 255, 0.3);
+  color: #14110b;
+  background: linear-gradient(178deg, #e3ad67, #d9a05b);
+  padding: 13px 26px;
+  border-radius: 12px;
+  box-shadow: 0 0 44px rgba(217, 160, 91, 0.38), 0 18px 40px -18px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .clickRing {
   position: absolute;
@@ -241,76 +243,14 @@
   border-radius: 999px;
   visibility: hidden;
 }
-.siteTrust {
-  display: block;
-  margin-top: 16px;
-  font-size: 12px;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-}
-.siteImage {
-  height: clamp(150px, 17vw, 220px);
-  border-radius: 12px;
-  background:
-    radial-gradient(120% 110% at 20% 10%, rgba(255, 255, 255, 0.16), transparent 45%),
-    linear-gradient(155deg, #3d4750 0%, #232a30 48%, #14181c 100%);
-  border: 1px solid var(--edge-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-}
 .cursor {
   position: absolute;
-  left: 24%;
-  bottom: 26%;
+  left: 13%;
+  bottom: 19%;
   z-index: 3;
   visibility: hidden;
   filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
   will-change: transform;
-}
-.phone {
-  width: clamp(120px, 11vw, 156px);
-  border-radius: 26px;
-  background: linear-gradient(170deg, #171b1f, #0e1114);
-  border: 1px solid var(--edge-strong);
-  box-shadow: 0 50px 110px -36px rgba(0, 0, 0, 0.9),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  padding: 14px 12px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.phoneNotch {
-  width: 44px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  margin: 0 auto 4px;
-}
-.phoneHero {
-  height: 84px;
-  border-radius: 12px;
-  background: linear-gradient(155deg, #39434c, #191f24);
-  border: 1px solid var(--edge);
-}
-.phoneLine {
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.14);
-}
-.phoneLineShort {
-  height: 8px;
-  width: 62%;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-}
-.phoneCta {
-  margin-top: 4px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #0a0c0e;
-  background: #eef1f2;
-  border-radius: 8px;
-  padding: 8px 0;
 }
 
 /* ---------- scene 4 · the pipeline ---------- */
@@ -614,21 +554,17 @@
   .copy {
     bottom: clamp(32px, 6vh, 64px);
   }
-  .site {
-    flex-direction: column;
-    padding: 0 18px 12vh;
+  .filmTitle {
+    left: 18px;
+    bottom: 20%;
+    font-size: clamp(28px, 7vw, 40px);
+    letter-spacing: 0.26em;
   }
-  .browser {
-    width: 100%;
-  }
-  .siteHero {
-    grid-template-columns: 1fr;
-  }
-  .siteImage {
-    display: none;
-  }
-  .phone {
-    display: none;
+  .filmPanel {
+    right: 18px;
+    bottom: 22%;
+    padding: 14px 16px;
+    gap: 10px;
   }
   .pipeline {
     top: 40%;
@@ -703,78 +639,6 @@
   --b-font: Georgia, "Times New Roman", serif;
 }
 
-/* ---------- the Veyra website scene, fully dressed ----------
-   Dark, cinematic, luxurious — the scene wears the same palette
-   as the .veyra portfolio identity but keeps its own selectors. */
-.veyraSite {
-  --b-bg: #0e1118;
-  --b-bg2: #171c26;
-  --b-ink: #ece9e2;
-  --b-mut: #8b8fa0;
-  --b-acc: #d9a05b;
-  --b-card: #141924;
-  --b-font: var(--font-display);
-}
-.urlPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.siteBody.veyraSite {
-  background: linear-gradient(178deg, var(--b-bg), var(--b-bg2));
-  color: var(--b-ink);
-}
-.veyraSite .siteLogo { color: var(--b-ink); letter-spacing: 0.06em; }
-.veyraSite .siteLinks i { color: var(--b-mut); }
-.veyraSite .siteNavCta {
-  color: #14110b;
-  background: var(--b-acc);
-}
-.siteEyebrow {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--b-acc);
-  margin-bottom: 10px;
-}
-.veyraSite .siteHeroCopy h3 { color: var(--b-ink); }
-.veyraSite .siteHeroCopy p { color: var(--b-mut); }
-.siteCtaRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.veyraSite .siteCta {
-  color: #14110b;
-  background: var(--b-acc);
-  box-shadow: 0 12px 28px -10px rgba(217, 160, 91, 0.45);
-}
-.siteGhostCta {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--b-ink);
-  border-bottom: 1px solid var(--b-acc);
-  padding-bottom: 2px;
-  margin-top: 18px;
-}
-.veyraSite .siteTrust { color: var(--b-mut); }
-.veyraSite .siteTrust b { color: var(--b-ink); font-weight: 600; }
-.veyraSite .clickRing { border-color: rgba(236, 233, 226, 0.8); }
-
-.siteVisual {
-  position: relative;
-}
-.veyraSite .siteImage {
-  position: relative;
-  height: clamp(170px, 18vw, 230px);
-  border-radius: 14px;
-  overflow: hidden;
-  border: none;
-  background: linear-gradient(160deg, #232a38 0%, #141924 60%, #0e1118 100%);
-  box-shadow: inset 0 0 0 1px rgba(236, 233, 226, 0.08);
-}
 .siteImageArch {
   position: absolute;
   left: 14%;
@@ -784,125 +648,6 @@
   border-radius: 50% 50% 0 0 / 62% 62% 0 0;
   background: linear-gradient(172deg, var(--b-acc) 0%, #5f7568 68%, #4c5f54 100%);
   opacity: 0.9;
-}
-.siteImageGlow {
-  position: absolute;
-  right: 8%;
-  top: 10%;
-  width: 34%;
-  height: 34%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.85), transparent 70%);
-}
-.availCard {
-  position: absolute;
-  right: -12px;
-  bottom: -16px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  background: var(--b-card);
-  color: var(--b-ink);
-  border-radius: 12px;
-  padding: 12px 14px;
-  box-shadow: 0 22px 44px -18px rgba(38, 41, 42, 0.4);
-}
-.availTitle {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--b-mut);
-}
-.availSlot {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--b-ink);
-  background: rgba(217, 160, 91, 0.12);
-  border: 1px solid rgba(217, 160, 91, 0.35);
-  border-radius: 7px;
-  padding: 4px 10px;
-}
-.availDim {
-  opacity: 0.55;
-  background: transparent;
-}
-.siteStrip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(236, 233, 226, 0.12);
-}
-.stripItem {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--b-ink);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(236, 233, 226, 0.14);
-  padding: 6px 12px;
-  border-radius: 999px;
-}
-.stripReview {
-  margin-left: auto;
-  font-size: 11.5px;
-  font-style: italic;
-  color: var(--b-mut);
-}
-
-/* Veyra phone — private-viewing flow */
-.phone.veyraSite {
-  background: linear-gradient(178deg, var(--b-bg), var(--b-bg2));
-  border-color: rgba(236, 233, 226, 0.2);
-}
-.phone.veyraSite .phoneNotch { background: rgba(236, 233, 226, 0.25); }
-.phoneBrand {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--b-ink);
-  text-align: center;
-}
-.phone.veyraSite .phoneHero {
-  position: relative;
-  overflow: hidden;
-  border: none;
-  background: linear-gradient(160deg, #232a38, #10131a);
-}
-.phoneTitle {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--b-ink);
-}
-.phoneSlots {
-  display: flex;
-  gap: 5px;
-}
-.phoneSlot,
-.phoneSlotOn {
-  flex: 1;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 6px 0;
-  border-radius: 7px;
-  color: var(--b-ink);
-  border: 1px solid rgba(236, 233, 226, 0.18);
-}
-.phoneSlotOn {
-  background: var(--b-ink);
-  color: #12151c;
-  border-color: var(--b-ink);
-}
-.phone.veyraSite .phoneCta {
-  background: var(--b-acc);
-  color: #14110b;
-}
-.phoneConfirm {
-  font-size: 9.5px;
-  text-align: center;
-  color: var(--b-mut);
 }
 
 /* ---------- portfolio device layers ---------- */
@@ -1225,9 +970,6 @@
 }
 
 @media (max-width: 900px) {
-  .siteStrip { display: none; }
-  .availCard { right: 6px; bottom: 6px; }
-  .siteCtaRow { flex-wrap: wrap; }
   .projCaptions { bottom: clamp(96px, 13vh, 150px); }
   .pHero { grid-template-columns: 1fr; }
   .pVisual { display: none; }
@@ -1313,17 +1055,6 @@
   background-size: cover;
   background-position: center;
 }
-.veyraSite .siteImage {
-  background-image: url("/img/veyra.jpg"),
-    linear-gradient(160deg, #232a38 0%, #141924 60%, #0e1118 100%);
-  background-size: cover;
-  background-position: center 65%;
-}
-.phone.veyraSite .phoneHero {
-  background-image: url("/img/veyra-night.jpg"), linear-gradient(160deg, #232a38, #10131a);
-  background-size: cover;
-  background-position: center;
-}
 
 /* ============================================================
    MOBILE — authored, not adapted
@@ -1352,18 +1083,19 @@
     font-size: 10px;
   }
 
-  /* website act: one composition, full width */
-  .site {
-    padding: 0 16px 9vh;
+  /* the film: full-bleed on mobile too — panel yields to the CTA */
+  .filmTitle {
+    left: 16px;
+    bottom: 24%;
+    font-size: 26px;
+    letter-spacing: 0.22em;
   }
-  .browser {
-    width: calc(100vw - 32px);
-  }
-  .siteBody {
-    padding: 18px 16px 22px;
-  }
-  .siteLinks {
+  .filmPanel {
     display: none;
+  }
+  .filmCtaWrap {
+    left: 16px;
+    bottom: 18%;
   }
 
   /* pipeline: the lead descends a vertical column */

@@ -84,6 +84,10 @@ export default function Stage() {
       gsap.set(copies, { autoAlpha: 0, y: 44 });
       gsap.set("[data-copy='1']", { autoAlpha: 1, y: 0 });
       gsap.set("[data-el='site']", { autoAlpha: 0, y: 60, scale: 0.94 });
+      gsap.set("[data-el='film2']", { autoAlpha: 0 });
+      gsap.set("[data-el='filmtitle']", { autoAlpha: 0, y: 26 });
+      gsap.set("[data-el='filmpanel']", { autoAlpha: 0, y: 30 });
+      gsap.set("[data-el='filmcta']", { autoAlpha: 0, y: 24 });
       gsap.set("[data-el='cursor']", { autoAlpha: 0, x: 260, y: -140, scale: 1 });
       gsap.set("[data-el='click']", { autoAlpha: 0, scale: 0.4 });
       gsap.set("[data-el='sent']", { autoAlpha: 0, y: 8 });
@@ -135,9 +139,29 @@ export default function Stage() {
       tl.to("[data-el='site']", { autoAlpha: 1, y: 0, scale: 1, duration: 5, ease: "power3.out" }, 17.5);
       copyIn(2, 20);
 
-      /* SCENE 3 — the interaction. Cursor → CTA → submitted → lead born. */
+      /* The walkthrough: scroll scrubs the film. One continuous journey —
+         approach (film1) cuts to interior (film2) on the door threshold. */
+      const film1 = q("[data-el='film1']") as HTMLVideoElement | null;
+      const film2 = q("[data-el='film2']") as HTMLVideoElement | null;
+      const seek = (v: HTMLVideoElement | null, p: number) => {
+        if (v && v.duration && isFinite(v.duration)) {
+          v.currentTime = Math.min(v.duration - 0.05, Math.max(0, p * v.duration));
+        }
+      };
+      const scrub = { p1: 0, p2: 0 };
+      tl.to(scrub, { p1: 1, duration: 13, ease: "none", onUpdate: () => seek(film1, scrub.p1) }, 17.5);
+      tl.to(scrub, { p2: 1, duration: 7.4, ease: "none", onUpdate: () => seek(film2, scrub.p2) }, 30.6);
+      tl.to("[data-el='film2']", { autoAlpha: 1, duration: 1.1, ease: "power1.inOut" }, 30.2);
+      // the title reads as if set into the concrete during the approach
+      tl.to("[data-el='filmtitle']", { autoAlpha: 1, y: 0, duration: 2.8, ease: "power3.out" }, 20.5);
+      tl.to("[data-el='filmtitle']", { autoAlpha: 0, y: -18, duration: 2, ease: "power3.in" }, 27.2);
+
+      /* SCENE 3 — the interaction. Inside now: facts surface in glass,
+         the illuminated plate takes the click, the lead is born. */
       copyOut(2, 27.5);
       copyIn(3, 30.5);
+      tl.to("[data-el='filmpanel']", { autoAlpha: 1, y: 0, duration: 2.4, ease: "power3.out" }, 31.2);
+      tl.to("[data-el='filmcta']", { autoAlpha: 1, y: 0, duration: 2.2, ease: "power3.out" }, 31.6);
       tl.to("[data-el='cursor']", { autoAlpha: 1, duration: 1 }, 28);
       tl.to("[data-el='cursor']", { x: 0, y: 0, duration: 3.4, ease: "power2.inOut" }, 28.6);
       tl.to("[data-el='cursor']", { scale: 0.82, duration: 0.5, ease: "power2.in" }, 32.2);
@@ -349,74 +373,53 @@ export default function Stage() {
         </div>
       </div>
 
-      {/* ---- scene 2/3: the website, inside the K's frame ---- */}
-      <div className={styles.site} data-el="site" aria-hidden="true">
-        <div className={styles.browser}>
-          <div className={styles.browserBar}>
-            <span className={styles.winDot} /><span className={styles.winDot} /><span className={styles.winDot} />
-            <span className={styles.urlPill}>
-              <svg width="9" height="10" viewBox="0 0 10 12" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="1" y="5" width="8" height="6" rx="1.5"/><path d="M3 5V3.5a2 2 0 014 0V5"/></svg>
-              veyra-estates.com
-            </span>
+      {/* ---- scene 2/3: the work itself — inside the Veyra film.
+           No browser chrome, no mockup: a continuous scroll-scrubbed
+           walkthrough of the project. Approach → door → interior → pool.
+           The lead is still born here (click → sent → orb), so the film
+           hands off to the pipeline exactly as before. ---- */}
+      <div className={styles.film} data-el="site" aria-hidden="true">
+        <div className={styles.filmStage}>
+          <video
+            className={styles.filmVideo}
+            data-el="film1"
+            src="/video/veyra-approach.mp4"
+            poster="/img/veyra-approach.jpg"
+            muted
+            playsInline
+            preload="auto"
+          />
+          <video
+            className={styles.filmVideo}
+            data-el="film2"
+            src="/video/veyra-interior.mp4"
+            poster="/img/veyra-interior.jpg"
+            muted
+            playsInline
+            preload="auto"
+          />
+          <span className={styles.filmGrade} />
+          {/* in-world: the title reads as if set into the concrete */}
+          <span className={styles.filmTitle} data-el="filmtitle">
+            VEYRA<i>Cliffside Residence — one continuous walkthrough</i>
+          </span>
+          {/* in-world: an illuminated glass panel carries the facts */}
+          <div className={styles.filmPanel} data-el="filmpanel">
+            <span><b>840 m²</b><i>six rooms, one shot</i></span>
+            <span><b>Scroll-driven</b><i>the camera walks with you</i></span>
+            <span><b>Website · 3D · Automation</b><i>concept build by Kivotra</i></span>
           </div>
-          <div className={`${styles.siteBody} ${styles.veyraSite}`}>
-            <div className={styles.siteNav}>
-              <span className={styles.siteLogo}>Veyra Estates</span>
-              <span className={styles.siteLinks}><i>Residences</i><i>Walkthrough</i><i>Viewings</i><i>Journal</i><i>Contact</i></span>
-              <span className={styles.siteNavCta}>Book a viewing</span>
-            </div>
-            <div className={styles.siteHero}>
-              <div className={styles.siteHeroCopy}>
-                <span className={styles.siteEyebrow}>Luxury real estate · 3D walkthrough</span>
-                <h3>Step inside. Before you arrive.</h3>
-                <p>Scroll through the residence room by room — a cinematic 3D walkthrough, from anywhere in the world.</p>
-                <div className={styles.siteCtaRow}>
-                  <div className={styles.siteCtaWrap}>
-                    <span className={styles.siteCta}>Begin the walkthrough</span>
-                    <span className={styles.clickRing} data-el="click" />
-                    <span className={styles.leadOrbBirth} data-el="sent">Enquiry received ✓</span>
-                  </div>
-                  <span className={styles.siteGhostCta}>View the residences</span>
-                </div>
-                <span className={styles.siteTrust}><b>Cliffside Residence</b> · Private viewings by appointment</span>
-              </div>
-              <div className={styles.siteVisual}>
-                <div className={styles.siteImage}>
-                  <span className={styles.siteImageGlow} />
-                </div>
-                <div className={styles.availCard}>
-                  <span className={styles.availTitle}>Private viewings</span>
-                  <span className={styles.availSlot}>Sat · 11:00</span>
-                  <span className={styles.availSlot}>Sun · 14:00</span>
-                  <span className={`${styles.availSlot} ${styles.availDim}`}>Mon · 10:00</span>
-                </div>
-              </div>
-            </div>
-            <div className={styles.siteStrip}>
-              <span className={styles.stripItem}>3D walkthrough</span>
-              <span className={styles.stripItem}>Drone film</span>
-              <span className={styles.stripItem}>Interior tour</span>
-              <span className={styles.stripReview}>“We knew from the walkthrough.” — private buyer</span>
-            </div>
-          </div>
-          <div className={styles.cursor} data-el="cursor">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff" stroke="#0a0c0e" strokeWidth="1.4">
-              <path d="M5 3l14 8-6.5 1.5L9 19z" />
-            </svg>
+          {/* in-world: the CTA is an illuminated plate by the water */}
+          <div className={styles.filmCtaWrap} data-el="filmcta">
+            <span className={styles.filmCta}>Book a similar project</span>
+            <span className={styles.clickRing} data-el="click" />
+            <span className={styles.leadOrbBirth} data-el="sent">Enquiry received ✓</span>
           </div>
         </div>
-        <div className={`${styles.phone} ${styles.veyraSite}`}>
-          <div className={styles.phoneNotch} />
-          <span className={styles.phoneBrand}>Veyra Estates</span>
-          <div className={styles.phoneHero} />
-          <span className={styles.phoneTitle}>Book a private viewing</span>
-          <div className={styles.phoneSlots}>
-            <span className={styles.phoneSlotOn}>Sat 11:00</span>
-            <span className={styles.phoneSlot}>Sun 14:00</span>
-            <span className={styles.phoneSlot}>Mon 10:00</span>
-          </div>
-          <div className={styles.phoneCta}>Confirm — Sat 11:00</div>
-          <span className={styles.phoneConfirm}>✓ Concierge will meet you</span>
+        <div className={styles.cursor} data-el="cursor">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff" stroke="#0a0c0e" strokeWidth="1.4">
+            <path d="M5 3l14 8-6.5 1.5L9 19z" />
+          </svg>
         </div>
       </div>
 
