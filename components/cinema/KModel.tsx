@@ -185,7 +185,6 @@ export default function KModel() {
     const u = clamp01(chan.kUnfold);
     const parked = clamp01(chan.kParked);
     const present = smoothstep(1 - parked);
-    g.visible = present > 0.01;
 
     /* LIGHT BUILDS THE K — before the reveal the object is a silhouette
        with one live edge; the glass, heart and reflections arrive with
@@ -193,7 +192,11 @@ export default function KModel() {
     const rv = clamp01(chan.reveal);
     const emerge = 0.12 + 0.88 * smoothstep(rv);
 
-    const dim = lerp(1, 0.42, smoothstep(u)) * present;
+    /* The sculpture dissolves as it unfolds — once the work is on stage,
+       the K yields it completely (no frame fragments behind the cards).
+       The finale folds it back, so it re-materialises for the loop. */
+    const dim = lerp(1, 0, smoothstep(u)) * present;
+    g.visible = dim > 0.01;
     shellMat.opacity = dim * emerge * (cinema.tier === "low" ? 0.92 : 1);
     shellMat.envMapIntensity = 3.2 * (0.2 + 0.8 * smoothstep(rv));
     coreMat.opacity = dim * emerge;
