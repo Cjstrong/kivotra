@@ -16,8 +16,6 @@ import {
   track,
   lerp,
   fadeWindow,
-  easeOutCubic,
-  easeOutSeat,
   easeInQuad,
   easeInOutCubic,
 } from "@/lib/experience/timeline";
@@ -25,23 +23,22 @@ import type { Tier } from "@/lib/experience/quality";
 import { K3D } from "@/lib/experience/k-geometry";
 
 /* ------------------------------------------------------------------ */
-/* The K is built around the signal: a thin vertical light that becomes
-   the machined gap between its stem and arms. All geometry derives from
-   the Concept D letterform in lib/experience/k-geometry — the 3D hero,
-   the flat mark and the favicon are the same construction.            */
+/* The K is on stage from frame one — a rim-lit engineered object in a
+   dark studio. Scroll performs the reveal: the key light and practicals
+   come up in sequence, the machine powers on, the camera commits and
+   passes through the signal gap. All geometry derives from the Concept D
+   letterform in lib/experience/k-geometry.                             */
 /* ------------------------------------------------------------------ */
 
 const ACCENT = "#4d7cfe";
 const SIGNAL = "#c3d4ff";
 const BG = "#050607";
 
-/* ------------------------------------------------------------------ */
-
 function useGlassMaterial() {
   return useMemo(() => {
-    /* Ultra-clear optical glass (selected material study A): the body is
-       water-clear and becomes luminous by refracting the practical strip
-       lights behind it — lit by its environment, never blending into it. */
+    /* Ultra-clear optical glass (material study A): the body is water-clear
+       and becomes luminous by refracting the practical strip lights behind
+       it — lit by its environment, never blending into it. */
     const m = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color("#ffffff"),
       metalness: 0,
@@ -127,7 +124,8 @@ function BarCore({
 }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const length = size[1];
-  const ribCount = Math.max(6, Math.round(length / 0.17));
+  // sparse station marks — watch-movement precision, never a radiator grille
+  const ribCount = Math.max(4, Math.round(length / 0.55));
 
   useEffect(() => {
     const mesh = ref.current;
@@ -144,7 +142,7 @@ function BarCore({
       );
       dummy.rotation.set(0, 0, rotation);
       // rib geometry has a 0.1 base footprint — scale to the bar section
-      dummy.scale.set((size[0] * 0.6) / 0.1, 1, (size[2] * 0.6) / 0.1);
+      dummy.scale.set((size[0] * 0.42) / 0.1, 0.7, (size[2] * 0.42) / 0.1);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
@@ -170,7 +168,6 @@ export default function KScene({
   tier: Tier;
   onReady: () => void;
 }) {
-  // Only base-Camera members (position, lookAt) are used — no narrowing needed.
   const camera = useThree((s) => s.camera);
   const baseFov = tier === "mobile" ? 38 : 28;
   const passFov = tier === "mobile" ? 52 : 46;
@@ -187,12 +184,10 @@ export default function KScene({
   const internalsMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#1b1f28"),
+        color: new THREE.Color("#14171d"),
         metalness: 0.9,
-        roughness: 0.4,
-        transparent: true,
-        opacity: 0,
-        envMapIntensity: 0.9,
+        roughness: 0.45,
+        envMapIntensity: 0.5,
       }),
     []
   );
@@ -246,6 +241,53 @@ export default function KScene({
     []
   );
 
+  const floorMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("#07080a"),
+        metalness: 0.55,
+        roughness: 0.42,
+        envMapIntensity: 0.5,
+        transparent: true,
+        opacity: 0.2,
+      }),
+    []
+  );
+
+  const practicalMaterial = useMemo(
+    () =>
+      // Opaque on purpose: transparent objects are excluded from the
+      // transmission buffer, and the whole point of the practicals is to be
+      // seen through the glass. Soft gradient rests on the background
+      // colour, so an unlit practical is indistinguishable from the void.
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color("#dfe9ff") },
+          uIntensity: { value: 0 },
+        },
+        vertexShader: /* glsl */ `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: /* glsl */ `
+          uniform vec3 uColor;
+          uniform float uIntensity;
+          varying vec2 vUv;
+          void main() {
+            float x = pow(max(0.0, 1.0 - abs(vUv.x - 0.5) * 2.0), 2.4);
+            float y = smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
+            vec3 bg = vec3(0.0196, 0.0235, 0.0275);
+            gl_FragColor = vec4(bg + uColor * uIntensity * x * y, 1.0);
+          }
+        `,
+        toneMapped: false,
+      }),
+    []
+  );
+
   /* Corridor teaser: two rows of identical slabs vanishing into fog. */
   const corridorRef = useRef<THREE.InstancedMesh>(null);
   const corridorGeometry = useMemo(
@@ -272,19 +314,14 @@ export default function KScene({
 
   /* Animated refs — every state below is a pure function of progress. */
   const kGroup = useRef<THREE.Group>(null);
-  const stemGroup = useRef<THREE.Group>(null);
-  const armUpperGroup = useRef<THREE.Group>(null);
-  const armLowerGroup = useRef<THREE.Group>(null);
-  const capTop = useRef<THREE.Mesh>(null);
-  const capBottom = useRef<THREE.Mesh>(null);
-  const capArmUpper = useRef<THREE.Mesh>(null);
-  const capArmLower = useRef<THREE.Mesh>(null);
   const lineMesh = useRef<THREE.Mesh>(null);
-  const lineCapTop = useRef<THREE.Mesh>(null);
-  const lineCapBottom = useRef<THREE.Mesh>(null);
   const glowMesh = useRef<THREE.Mesh>(null);
   const gapLight = useRef<THREE.PointLight>(null);
   const hairlineRef = useRef<THREE.Mesh>(null);
+  const keyLight = useRef<THREE.DirectionalLight>(null);
+  const rimLight = useRef<THREE.PointLight>(null);
+  const kickerLight = useRef<THREE.PointLight>(null);
+  const corridorLight = useRef<THREE.PointLight>(null);
 
   const pointerCur = useRef({ x: 0, y: 0 });
   const readySent = useRef(false);
@@ -294,65 +331,13 @@ export default function KScene({
     look: new THREE.Vector3(),
   });
   const camSmooth = useRef({ look: new THREE.Vector3() });
-  const keyLight = useRef<THREE.DirectionalLight>(null);
-  const rimLight = useRef<THREE.PointLight>(null);
-  const corridorLight = useRef<THREE.PointLight>(null);
-  /* studio practicals: thin strip lights behind the K — their refraction
-     through the clear glass is what makes the K luminous */
-  const practicalMaterial = useMemo(
-    () =>
-      // Opaque on purpose: transparent objects are excluded from the
-      // transmission buffer, and the whole point of the practicals is to be
-      // seen through the glass. Soft gradient falls to black, which is
-      // invisible against the void; intensity uniform does the fading.
-      new THREE.ShaderMaterial({
-        uniforms: {
-          uColor: { value: new THREE.Color("#dfe9ff") },
-          uIntensity: { value: 0 },
-        },
-        vertexShader: /* glsl */ `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: /* glsl */ `
-          uniform vec3 uColor;
-          uniform float uIntensity;
-          varying vec2 vUv;
-          void main() {
-            float x = pow(max(0.0, 1.0 - abs(vUv.x - 0.5) * 2.0), 2.4);
-            float y = smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
-            // rest on the scene background colour, never pure black — an
-            // unlit practical must be indistinguishable from the void
-            vec3 bg = vec3(0.0196, 0.0235, 0.0275);
-            gl_FragColor = vec4(bg + uColor * uIntensity * x * y, 1.0);
-          }
-        `,
-        toneMapped: false,
-      }),
-    []
-  );
-  const floorMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#07080a"),
-        metalness: 0.55,
-        roughness: 0.42,
-        envMapIntensity: 0.5,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
 
-  /* R3F does not dispose resources created imperatively via useMemo —
-     release them ourselves when the scene unmounts. */
   useEffect(() => {
     hazePool.uniforms.uColor.value.set("#4d5b85");
   }, [hazePool]);
 
+  /* R3F does not dispose resources created imperatively via useMemo —
+     release them ourselves when the scene unmounts. */
   useEffect(() => {
     return () => {
       for (const r of [
@@ -403,22 +388,62 @@ export default function KScene({
     p.x = lerp(p.x, state.pointer.x, 0.05);
     p.y = lerp(p.y, state.pointer.y, 0.05);
 
-    /* -- separation pool: rises with the machine, sits behind it ------ */
-    hazePool.uniforms.uOpacity.value =
-      span(f, 0.34, 0.5) * 0.18 * (1 - span(f, 0.86, 0.94));
+    /* -- the reveal: studio lights come up in sequence ---------------- */
+    const lightRise = span(f, BEATS.lightsUp[0], BEATS.lightsUp[1]);
+    const keyRise = easeInOutCubic(span(f, 0.18, 0.42));
+    if (keyLight.current) {
+      keyLight.current.intensity = keyRise * 2.3;
+    }
+    // rims are on from frame one: the landing image is the traced object
+    const rimBreathe = 1 + Math.sin(t * 0.4) * 0.05;
+    if (rimLight.current) {
+      rimLight.current.intensity = 3.4 * rimBreathe;
+    }
+    if (kickerLight.current) {
+      kickerLight.current.intensity = 2.0 * (2 - rimBreathe);
+    }
+    // the object is quietly lit from within even at landing — a lit
+    // showroom piece — and the reveal brings it to full presence
     practicalMaterial.uniforms.uIntensity.value =
-      span(f, 0.38, 0.56) * 1.15 * (1 - span(f, 0.86, 0.93));
+      (0.42 + easeInOutCubic(span(f, 0.22, 0.46)) * 0.75) *
+      (1 - span(f, 0.86, 0.93));
+    hazePool.uniforms.uOpacity.value =
+      (0.16 + lightRise * 0.06) * (1 - span(f, 0.86, 0.94));
+    floorMaterial.opacity = 0.2 + lightRise * 0.25;
 
-    /* -- camera ------------------------------------------------------ */
-    // Framing beats, long-lens distances: arrive (17→12), hold with a slow
-    // creep (12→10.2), commit to the approach (→2.7), pass through.
+    /* -- signal: the machined gap carries the brand light ------------- */
+    const idlePulse = Math.sin(t * 1.6) * 0.5 + 0.5;
+    const lineFade = 1 - span(f, 0.85, 0.9);
+    lineMaterial.opacity = (0.72 + 0.18 * idlePulse) * lineFade;
+    if (glowMesh.current) {
+      glow.uniforms.uOpacity.value = (0.3 + 0.1 * idlePulse) * lineFade;
+    }
+    if (gapLight.current) {
+      const flare = Math.sin(span(f, 0.84, 0.94) * Math.PI) * 2.2;
+      const powerOn =
+        Math.sin(span(f, BEATS.powerOn[0], BEATS.powerOn[1]) * Math.PI) * 1.5;
+      gapLight.current.intensity = 0.6 + flare + powerOn;
+    }
+
+    /* -- the machine powers on: one pulse travels up the gap ---------- */
+    const pulse01 = span(f, BEATS.powerOn[0], BEATS.powerOn[1]);
+    if (pulseMesh.current) {
+      pulseMesh.current.position.y = lerp(-1.3, 1.42, pulse01);
+      pulseMesh.current.visible = pulse01 > 0 && pulse01 < 1;
+      pulseMaterial.opacity = Math.sin(pulse01 * Math.PI);
+    }
+
+    /* -- camera: filmed, not programmed ------------------------------- */
+    // Framing beats: a slow push through the reveal, a held creep during
+    // the statement, then the commit and the pass.
     const camZ =
       f < 0.4
-        ? track(f, 0, 0.4, 17, 12) * distMul
-        : f < 0.62
-          ? track(f, 0.4, 0.62, 12, 10.2) * distMul
+        ? track(f, 0, 0.4, 11.6, 10.6) * distMul
+        : f < BEATS.approach[0]
+          ? track(f, 0.4, BEATS.approach[0], 10.6, 10.0) * distMul
           : f < BEATS.passThrough[0]
-            ? track(f, 0.62, BEATS.passThrough[0], 10.2, 2.7) * distMul
+            ? track(f, BEATS.approach[0], BEATS.passThrough[0], 10.0, 2.7) *
+              distMul
             : track(
                 f,
                 BEATS.passThrough[0],
@@ -428,8 +453,7 @@ export default function KScene({
                 easeInQuad
               );
 
-    // Dolly-zoom only for the pass: the lens widens as we cross the gap,
-    // opening the corridor reveal.
+    // dolly-zoom only for the pass — the lens widens as we cross the gap
     if (camera instanceof THREE.PerspectiveCamera) {
       const fov = baseFov + (passFov - baseFov) * span(f, 0.85, 0.98);
       if (Math.abs(camera.fov - fov) > 0.01) {
@@ -438,37 +462,24 @@ export default function KScene({
       }
     }
 
-    // The letterform's visual centre sits right of the gap axis (x = 0).
-    // The framing follows the story: centre the lone signal first, drift to
-    // the K's visual centre as it forms, then converge back onto the gap
-    // axis for the pass-through.
-    // While the headline and supporting statement hold (0.46–0.87), pan the
-    // whole framing left so the K sits in the right half of the frame and
-    // the type owns the left — they must never overlap.
+    // gentle drift that dies before the approach; low angle rises to level
+    const orbit = Math.sin(f * Math.PI * 0.9) * 0.35 * (1 - span(f, 0.6, 0.7));
+    const camY = lerp(-0.18, 0, easeInOutCubic(span(f, 0.1, 0.5)));
+
+    // editorial pan while the statements hold — type left, object right
     const editorialPan =
-      -0.62 * fadeWindow(f, [0.42, 0.5, 0.8, 0.88]) * (tier === "mobile" ? 0.4 : 1);
+      -0.62 *
+      fadeWindow(f, [0.3, 0.4, 0.72, 0.82]) *
+      (tier === "mobile" ? 0.4 : 1);
     const frameX =
-      K3D.visualCenterX *
-        kScale *
-        span(f, 0.36, 0.52) *
-        (1 - span(f, 0.72, 0.86)) +
-      editorialPan;
+      K3D.visualCenterX * kScale * (1 - span(f, 0.72, 0.86)) + editorialPan;
 
-    // one orbital arc during formation that dies before the statement hold —
-    // the letterform must be read nearly frontally, like a drawn mark
-    const orbit =
-      Math.sin(span(f, 0.3, 0.62) * Math.PI) *
-      (1 - span(f, 0.56, 0.66) * 0.88);
-
-    // Physically-operated camera: the scrub defines the target, the rig
-    // follows with tiny inertia, breathing and micro adjustments — like a
-    // dolly operator, never a math orbit.
     const breatheZ = Math.sin(t * 0.5) * 0.018;
     const microX = Math.sin(t * 0.31) * 0.006 + Math.sin(t * 0.77) * 0.003;
     const microY = Math.sin(t * 0.43) * 0.005;
     const targetPos = camTarget.current.pos.set(
       frameX + orbit * 0.8 + microX,
-      orbit * 0.25 + microY,
+      camY + orbit * 0.18 + microY,
       camZ + breatheZ * (1 - span(f, 0.82, 1))
     );
 
@@ -490,125 +501,9 @@ export default function KScene({
     }
     camera.lookAt(camSmooth.current.look);
 
-    /* -- signal: point → engineered line → the K's gap --------------- */
-    const pulse = Math.sin(t * 2.4) * 0.5 + 0.5;
-    const early = 1 - span(f, 0.34, 0.44); // pulse belongs to the opening
-    const lineH = track(
-      f,
-      BEATS.lineStretch[0],
-      BEATS.lineStretch[1],
-      0.022,
-      K3D.signal.height,
-      easeInOutCubic
-    );
-    const lineFade = 1 - span(f, 0.85, 0.9); // hand off to the corridor
-
-    if (lineMesh.current) {
-      lineMesh.current.scale.set(1, lineH / 0.02, 1);
-      lineMaterial.opacity = (0.65 + 0.3 * pulse * early) * lineFade;
-    }
-    if (glowMesh.current) {
-      glowMesh.current.scale.set(
-        0.55 + lineH * 0.16,
-        0.62 + lineH * 0.5,
-        1
-      );
-      glow.uniforms.uOpacity.value =
-        (0.34 + 0.22 * pulse * early) * lineFade;
-    }
-    const lineCapScale = span(f, 0.3, 0.38);
-    for (const [ref, dir] of [
-      [lineCapTop, 1],
-      [lineCapBottom, -1],
-    ] as const) {
-      if (ref.current) {
-        ref.current.position.y = dir * (lineH / 2 + 0.03);
-        ref.current.scale.setScalar(Math.max(0.0001, lineCapScale));
-      }
-    }
-    if (gapLight.current) {
-      const flare = Math.sin(span(f, 0.84, 0.94) * Math.PI) * 2.2;
-      const powerOn = Math.sin(span(f, 0.64, 0.71) * Math.PI) * 1.5;
-      gapLight.current.intensity =
-        0.25 + span(f, 0.24, 0.4) * 0.8 + flare + powerOn;
-    }
-
-    /* -- motivated lighting: the studio lights come up as the machine
-          forms; the entry stays almost completely black ---------------- */
-    const lightRise = span(f, 0.36, 0.56);
-    if (keyLight.current) {
-      keyLight.current.intensity = 0.05 + lightRise * 2.3;
-    }
-    if (rimLight.current) {
-      rimLight.current.intensity = lightRise * 3.6;
-    }
-    floorMaterial.opacity = lightRise * 0.4;
-
-    /* -- formation: parts slide onto the signal axis ------------------ */
-    const partsVisible = f > 0.34;
-    for (const g of [stemGroup, armUpperGroup, armLowerGroup]) {
-      if (g.current) g.current.visible = partsVisible;
-    }
-    if (stemGroup.current) {
-      stemGroup.current.position.x = track(
-        f,
-        BEATS.stemIn[0],
-        BEATS.stemIn[1],
-        -6,
-        0,
-        easeOutSeat
-      );
-    }
-    if (armUpperGroup.current) {
-      armUpperGroup.current.position.x = track(
-        f,
-        BEATS.armUpperIn[0],
-        BEATS.armUpperIn[1],
-        5,
-        0,
-        easeOutSeat
-      );
-    }
-    if (armLowerGroup.current) {
-      armLowerGroup.current.position.x = track(
-        f,
-        BEATS.armLowerIn[0],
-        BEATS.armLowerIn[1],
-        5,
-        0,
-        easeOutSeat
-      );
-    }
-
-    /* -- precision beats: final alignment, then the machine powers on ---- */
-    const pulse01 = span(f, 0.64, 0.71);
-    if (pulseMesh.current) {
-      pulseMesh.current.position.y = lerp(-1.3, 1.42, pulse01);
-      pulseMesh.current.visible = pulse01 > 0 && pulse01 < 1;
-      pulseMaterial.opacity = Math.sin(pulse01 * Math.PI);
-    }
-    const capScale = Math.max(
-      0.0001,
-      track(f, BEATS.capsIn[0], BEATS.capsIn[1], 0, 1, easeOutCubic)
-    );
-    for (const ref of [capTop, capBottom, capArmUpper, capArmLower]) {
-      if (ref.current) ref.current.scale.setScalar(capScale);
-    }
-    internalsMaterial.opacity = track(
-      f,
-      BEATS.internalsIn[0],
-      BEATS.internalsIn[1],
-      0,
-      0.85
-    );
-
-    /* -- assembled machine: barely-alive idle ------------------------ */
+    /* -- the lit machine: barely-alive idle --------------------------- */
     if (kGroup.current) {
-      kGroup.current.rotation.y =
-        Math.sin(t * 0.22) * 0.02 * span(f, 0.72, 0.8);
-      // parts arrive fractionally out of true, then the machine aligns
-      kGroup.current.rotation.z =
-        0.01 * span(f, 0.42, 0.5) * (1 - easeInOutCubic(span(f, 0.54, 0.6)));
+      kGroup.current.rotation.y = Math.sin(t * 0.22) * 0.015;
       kGroup.current.scale.setScalar(kScale);
     }
 
@@ -633,42 +528,50 @@ export default function KScene({
       <color attach="background" args={[BG]} />
       <fogExp2 attach="fog" args={[BG, 0.035]} />
 
+      {/* soft indirect bounce — the floor and walls return a little light */}
+      <hemisphereLight args={["#1b2130", "#0a0c12", 0.3]} />
       <ambientLight intensity={0.04} />
       <directionalLight
         ref={keyLight}
         position={[3.5, 4, 2.5]}
-        intensity={0.05}
+        intensity={0}
         color="#e8eeff"
       />
       <pointLight
         ref={gapLight}
         position={[0, 0, 0.5]}
         color={ACCENT}
-        intensity={0.25}
+        intensity={0.6}
         distance={7}
         decay={2}
       />
-      {/* cool rim from behind-left — separates the smoked glass from the void */}
+      {/* the landing image: two rims trace the object out of the dark */}
       <pointLight
         ref={rimLight}
         position={[-2.6, 1.8, -2.8]}
         color="#aebcdf"
-        intensity={0}
+        intensity={3.4}
         distance={12}
+        decay={2}
+      />
+      <pointLight
+        ref={kickerLight}
+        position={[3.2, -0.6, -2.4]}
+        color="#8d9dc4"
+        intensity={2.0}
+        distance={11}
         decay={2}
       />
 
       {/* Automotive-studio environment: tall strip softboxes that draw long
           elegant reflections down the glass, one strong key box, dim fill. */}
       <Environment resolution={256} frames={1}>
-        {/* key softbox — upper right, the sculpting light */}
         <Lightformer
           intensity={3.4}
           position={[4.5, 3.5, 2.5]}
           scale={[3.4, 2.6, 1]}
           color="#e8edf8"
         />
-        {/* tall vertical strips — the long streaks in the glass */}
         <Lightformer
           intensity={2.6}
           position={[-3.2, 0.6, 3.4]}
@@ -683,7 +586,6 @@ export default function KScene({
           scale={[0.4, 7, 1]}
           color="#dbe3f2"
         />
-        {/* overhead strip — caps and top chamfers */}
         <Lightformer
           intensity={1.6}
           position={[0.5, 4.6, 0.5]}
@@ -691,15 +593,13 @@ export default function KScene({
           scale={[6, 0.7, 1]}
           color="#c2cce2"
         />
-        {/* rear cool sheet for rim reflections */}
         <Lightformer
-          intensity={1.2}
+          intensity={2.2}
           position={[-4, 1.5, -3]}
           rotation-y={Math.PI}
           scale={[2.5, 5, 1]}
-          color="#8ea2c8"
+          color="#9db0d6"
         />
-        {/* dim frontal fill — keeps front faces readable, never flat */}
         <Lightformer
           intensity={0.5}
           position={[0, 0.5, 7]}
@@ -717,20 +617,20 @@ export default function KScene({
       {/* studio practicals: one soft strip behind each limb, aligned to the
           limb's axis so the glass owns the light — nothing pokes out */}
       {[
-        { x: -0.45, y: 0.15, rot: 0, h: 2.9, w: 0.5 },
+        { x: -0.45, y: 0.15, rot: 0, h: 2.95, w: 0.62 },
         {
           x: K3D.arm.upperCenter[0],
           y: K3D.arm.upperCenter[1],
           rot: -K3D.armAngle,
-          h: 1.85,
-          w: 0.4,
+          h: 1.9,
+          w: 0.48,
         },
         {
           x: K3D.arm.lowerCenter[0],
           y: K3D.arm.lowerCenter[1],
           rot: K3D.armAngle,
-          h: 1.85,
-          w: 0.4,
+          h: 1.9,
+          w: 0.48,
         },
       ].map((s) => (
         <mesh
@@ -743,123 +643,117 @@ export default function KScene({
         </mesh>
       ))}
 
-      {/* ---- The K ---- */}
+      {/* ---- The K — assembled, machined, on stage ---- */}
       <group ref={kGroup}>
-        {/* signal line — the machine's core, later its machined gap */}
-        <mesh ref={lineMesh}>
+        {/* the signal: the machined gap carries the brand light */}
+        <mesh ref={lineMesh} scale={[1, K3D.signal.height / 0.02, 1]}>
           <boxGeometry args={[0.014, 0.02, 0.014]} />
           <primitive object={lineMaterial} attach="material" />
         </mesh>
-        <mesh ref={glowMesh}>
+        <mesh ref={glowMesh} scale={[1, 2.2, 1]}>
           <planeGeometry args={[1, 1]} />
           <primitive object={glow} attach="material" />
         </mesh>
-        <mesh ref={lineCapTop} material={metal}>
+        <mesh
+          position={[0, K3D.signal.height / 2 + 0.03, 0]}
+          material={metal}
+        >
           <boxGeometry args={[0.06, 0.025, 0.06]} />
         </mesh>
-        <mesh ref={lineCapBottom} material={metal}>
+        <mesh
+          position={[0, -(K3D.signal.height / 2 + 0.03), 0]}
+          material={metal}
+        >
           <boxGeometry args={[0.06, 0.025, 0.06]} />
         </mesh>
 
-        {/* power-on: one pulse of light travels up the gap as the K seats */}
+        {/* power-on: one pulse of light travels up the gap */}
         <mesh ref={pulseMesh} visible={false}>
           <boxGeometry args={[0.028, 0.22, 0.028]} />
           <primitive object={pulseMaterial} attach="material" />
         </mesh>
 
-        {/* stem — slides in from the left */}
-        <group ref={stemGroup}>
-          <RoundedBox
-            args={K3D.stem.size}
-            radius={0.028}
-            smoothness={4}
-            position={K3D.stem.center}
-            material={glass}
-          />
-          {/* machined rails on the stem's gap-facing face */}
-          <mesh position={[K3D.railX, 0, 0.22]} material={metal}>
-            <boxGeometry args={[0.025, K3D.bodyHeight, 0.025]} />
-          </mesh>
-          <mesh position={[K3D.railX, 0, -0.22]} material={metal}>
-            <boxGeometry args={[0.025, K3D.bodyHeight, 0.025]} />
-          </mesh>
-          <mesh
-            ref={capTop}
-            position={[K3D.stem.center[0], K3D.bodyHeight / 2 + 0.05, 0]}
-            material={metal}
-          >
-            <boxGeometry args={[K3D.stem.size[0] + 0.06, 0.09, 0.56]} />
-          </mesh>
-          <mesh
-            ref={capBottom}
-            position={[K3D.stem.center[0], -(K3D.bodyHeight / 2 + 0.05), 0]}
-            material={metal}
-          >
-            <boxGeometry args={[K3D.stem.size[0] + 0.06, 0.09, 0.56]} />
-          </mesh>
-          <BarCore
-            size={K3D.stem.size}
-            center={K3D.stem.center}
-            material={internalsMaterial}
-            ribGeometry={internalsGeometry}
-          />
-        </group>
+        {/* stem */}
+        <RoundedBox
+          args={K3D.stem.size}
+          radius={0.028}
+          smoothness={4}
+          position={K3D.stem.center}
+          material={glass}
+        />
+        <mesh position={[K3D.railX, 0, 0.22]} material={metal}>
+          <boxGeometry args={[0.025, K3D.bodyHeight, 0.025]} />
+        </mesh>
+        <mesh position={[K3D.railX, 0, -0.22]} material={metal}>
+          <boxGeometry args={[0.025, K3D.bodyHeight, 0.025]} />
+        </mesh>
+        <mesh
+          position={[K3D.stem.center[0], K3D.bodyHeight / 2 + 0.05, 0]}
+          material={metal}
+        >
+          <boxGeometry args={[K3D.stem.size[0] + 0.06, 0.09, 0.56]} />
+        </mesh>
+        <mesh
+          position={[K3D.stem.center[0], -(K3D.bodyHeight / 2 + 0.05), 0]}
+          material={metal}
+        >
+          <boxGeometry args={[K3D.stem.size[0] + 0.06, 0.09, 0.56]} />
+        </mesh>
+        <BarCore
+          size={K3D.stem.size}
+          center={K3D.stem.center}
+          material={internalsMaterial}
+          ribGeometry={internalsGeometry}
+        />
 
-        {/* arms — slide in from the right, staggered */}
-        <group ref={armUpperGroup}>
-          <RoundedBox
-            args={K3D.arm.size}
-            radius={0.028}
-            smoothness={4}
-            position={K3D.arm.upperCenter}
-            rotation={[0, 0, -K3D.armAngle]}
-            material={glass}
-          />
-          <mesh
-            ref={capArmUpper}
-            position={K3D.arm.upperTip}
-            rotation={[0, 0, -K3D.armAngle]}
-            material={metal}
-          >
-            <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
-          </mesh>
-          <BarCore
-            size={K3D.arm.size}
-            rotation={-K3D.armAngle}
-            center={K3D.arm.upperCenter}
-            material={internalsMaterial}
-            ribGeometry={internalsGeometry}
-          />
-        </group>
-        <group ref={armLowerGroup}>
-          <RoundedBox
-            args={K3D.arm.size}
-            radius={0.028}
-            smoothness={4}
-            position={K3D.arm.lowerCenter}
-            rotation={[0, 0, K3D.armAngle]}
-            material={glass}
-          />
-          <mesh
-            ref={capArmLower}
-            position={K3D.arm.lowerTip}
-            rotation={[0, 0, K3D.armAngle]}
-            material={metal}
-          >
-            <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
-          </mesh>
-          <BarCore
-            size={K3D.arm.size}
-            rotation={K3D.armAngle}
-            center={K3D.arm.lowerCenter}
-            material={internalsMaterial}
-            ribGeometry={internalsGeometry}
-          />
-        </group>
+        {/* arms */}
+        <RoundedBox
+          args={K3D.arm.size}
+          radius={0.028}
+          smoothness={4}
+          position={K3D.arm.upperCenter}
+          rotation={[0, 0, -K3D.armAngle]}
+          material={glass}
+        />
+        <mesh
+          position={K3D.arm.upperTip}
+          rotation={[0, 0, -K3D.armAngle]}
+          material={metal}
+        >
+          <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
+        </mesh>
+        <BarCore
+          size={K3D.arm.size}
+          rotation={-K3D.armAngle}
+          center={K3D.arm.upperCenter}
+          material={internalsMaterial}
+          ribGeometry={internalsGeometry}
+        />
+        <RoundedBox
+          args={K3D.arm.size}
+          radius={0.028}
+          smoothness={4}
+          position={K3D.arm.lowerCenter}
+          rotation={[0, 0, K3D.armAngle]}
+          material={glass}
+        />
+        <mesh
+          position={K3D.arm.lowerTip}
+          rotation={[0, 0, K3D.armAngle]}
+          material={metal}
+        >
+          <boxGeometry args={[K3D.arm.size[0] + 0.05, 0.08, 0.54]} />
+        </mesh>
+        <BarCore
+          size={K3D.arm.size}
+          rotation={K3D.armAngle}
+          center={K3D.arm.lowerCenter}
+          material={internalsMaterial}
+          ribGeometry={internalsGeometry}
+        />
       </group>
 
-      {/* ---- floor: the object stands on glossy dark ground; on desktop it
-              carries a real soft reflection — the commercial signature ---- */}
+      {/* ---- floor: glossy dark ground with a real soft reflection ---- */}
       {tier === "high" ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.78, -14]}>
           <planeGeometry args={[80, 110]} />
@@ -889,7 +783,6 @@ export default function KScene({
         ref={corridorRef}
         args={[corridorGeometry, corridorMaterial, 24]}
       />
-      {/* cool light deep in the corridor — the destination the exit implies */}
       <pointLight
         ref={corridorLight}
         position={[0, 0.4, -20]}

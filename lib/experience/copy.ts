@@ -16,25 +16,25 @@ export interface FilmLine {
   window: TextWindow;
 }
 
-/** Prototype film: Chapter 01 (Signal) → Chapter 02 (Formation) → pass-through. */
+/** Hero film: rim-lit K at landing → the reveal → statement → pass-through. */
 export const FILM_LINES: FilmLine[] = [
   {
     id: "ch01-noise",
     text: "Most businesses disappear into the noise.",
     role: "line",
-    window: [0.05, 0.1, 0.22, 0.28],
+    window: [0.03, 0.08, 0.18, 0.24],
   },
   {
     id: "ch02-hero",
     text: "Built to stand apart.",
     role: "hero",
-    window: [0.46, 0.52, 0.62, 0.68],
+    window: [0.36, 0.43, 0.56, 0.63],
   },
   {
     id: "ch02-support",
     text: "We engineer software, systems and digital experiences\nfor businesses that refuse to blend in.",
     role: "support",
-    window: [0.69, 0.74, 0.82, 0.87],
+    window: [0.66, 0.71, 0.79, 0.84],
   },
 ];
 

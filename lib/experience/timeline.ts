@@ -51,18 +51,19 @@ export const fadeWindow = (
   return 1 - easeInCubic(span(p, c, d));
 };
 
-/** Film beats for the hero prototype (Chapter 01 → 02 → pass-through). */
+/**
+ * Film beats for the hero. The K is present from frame one — a rim-lit
+ * silhouette traced by edge light. Scroll performs the reveal: the studio
+ * lights come up in sequence, the machine powers on, the camera commits.
+ */
 export const BEATS = {
-  /* Chapter 01 — Signal */
-  pulseOnly: [0.0, 0.24] as const, // lone point of light
-  lineStretch: [0.24, 0.4] as const, // point → engineered vertical line
-  /* Chapter 02 — Formation */
-  stemIn: [0.4, 0.52] as const,
-  armUpperIn: [0.46, 0.58] as const,
-  armLowerIn: [0.5, 0.62] as const,
-  capsIn: [0.56, 0.66] as const,
-  internalsIn: [0.6, 0.72] as const,
-  /* Transition — through the K into Chapter 03's first suggestion */
+  /* the reveal: key light and practicals rise in sequence */
+  lightsUp: [0.15, 0.45] as const,
+  /* the machine powers on: one pulse up the gap once fully lit */
+  powerOn: [0.48, 0.55] as const,
+  /* commit: the camera leaves the hold and drives at the gap */
+  approach: [0.7, 0.85] as const,
+  /* through the K into Chapter 03's first suggestion */
   passThrough: [0.85, 1.0] as const,
   corridorReveal: [0.84, 0.96] as const,
 };
