@@ -1,0 +1,61 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--pad);
+  pointer-events: none;
+}
+
+.nav a {
+  pointer-events: auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg);
+  font-weight: 550;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.brand svg {
+  display: block;
+  flex: none;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 3.4vw, 40px);
+}
+
+.link {
+  font-size: 0.84rem;
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  color: var(--fg-dim);
+  transition: color 0.22s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--fg);
+}
+
+@media (max-width: 480px) {
+  .links {
+    gap: 18px;
+  }
+  .link {
+    font-size: 0.8rem;
+  }
+}

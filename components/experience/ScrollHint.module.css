@@ -1,0 +1,31 @@
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.tick {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, var(--fg-faint), transparent);
+  animation: tick-drift 2.4s var(--ease-io) infinite;
+}
+
+@keyframes tick-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 0.55;
+  }
+}

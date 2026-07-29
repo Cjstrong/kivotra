@@ -1,20 +1,33 @@
 import type { Metadata, Viewport } from "next";
+import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+  weight: ["400", "500", "600"],
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+});
+
 export const metadata: Metadata = {
-  title: "Kivotra — Websites & automation for local business",
+  title: "Kivotra — Built to stand apart.",
   description:
-    "We design high-converting websites and build the automations behind them — so your business looks better, responds faster and wastes less time. Book a free strategy call.",
+    "Kivotra engineers custom software, SaaS platforms, automation and high-impact digital experiences for businesses that refuse to blend in.",
   openGraph: {
-    title: "Kivotra — Websites that win attention. Systems that run the business.",
+    title: "Kivotra — Built to stand apart.",
     description:
-      "Premium websites and the AI automation behind them, built for local businesses.",
+      "Custom software, intelligent systems and digital experiences, engineered for businesses that refuse to blend in.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090b",
+  themeColor: "#050607",
   width: "device-width",
   initialScale: 1,
 };
@@ -25,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${instrument.variable} ${jetbrains.variable}`}>
       <body>{children}</body>
     </html>
   );

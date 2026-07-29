@@ -1,0 +1,97 @@
+.wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 24px) var(--pad) 64px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heroMark {
+  position: absolute;
+  right: -4%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.opening {
+  font-size: 1rem;
+  color: var(--fg-faint);
+  margin-bottom: 22px;
+}
+
+.title {
+  font-size: var(--text-hero);
+  max-width: 12ch;
+}
+
+.support {
+  margin-top: 26px;
+  font-size: var(--text-support);
+  line-height: 1.55;
+  color: var(--fg-dim);
+  max-width: 46ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 40px;
+}
+
+.section {
+  border-top: 1px solid var(--line);
+  padding: clamp(72px, 11vh, 140px) var(--pad);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.capabilities {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0 40px;
+}
+
+.capabilities li {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  font-size: 1.05rem;
+  color: var(--fg-dim);
+}
+
+.note {
+  margin-top: 30px;
+  color: var(--fg-dim);
+  max-width: 52ch;
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: clamp(72px, 11vh, 140px) var(--pad) 90px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footTitle {
+  margin-top: 26px;
+  font-size: var(--text-h2);
+}
+
+.fine {
+  margin-top: 56px;
+  font-size: 0.85rem;
+  color: var(--fg-faint);
+}
