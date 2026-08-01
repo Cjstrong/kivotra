@@ -1,62 +1,88 @@
 "use client";
 
 /**
- * Shared cinematic state.
+ * Shared cinematic state — the single coordination point of the film.
  *
- * `chan` holds every value the WebGL scene needs. It is written EXCLUSIVELY by
- * the master GSAP timeline (Stage.tsx) — no component reads raw scroll
- * progress independently. The 3D scene reads `chan` inside its own frame loop.
- * Nothing here triggers a React re-render.
+ * `chan` holds every value the WebGL scene needs. It is written EXCLUSIVELY
+ * by the master GSAP timeline (Film.tsx); the 3D scene reads it inside its
+ * frame loop. Nothing here triggers a React re-render.
  */
 
 export type Tier = "high" | "mid" | "low";
 
 /** Animation channels — tweened by the master timeline only. */
 export const chan = {
-  /** camera dolly */
-  camZ: 9.4,
-  camY: -0.4,
-  camX: 0.25,
-  targetY: -0.55,
-  /** 0 = K assembled · 1 = unfolded into the website frame */
-  kUnfold: 0,
-  /** 0 = on stage · 1 = withdrawn into darkness (pipeline/dashboard acts) */
-  kParked: 0,
-  /** hero: 0 = darkness · 1 = the light has built the K (intro + phase 1-2) */
-  reveal: 0,
-  /** hero: position of the narrow light sweep, -1 (off left) .. 1 (off right) */
-  sweep: -1,
+  /* CH 01 — SIGNAL */
+  stretch: 0, // 0 = point of light · 1 = engineered line
+  trace: 0, // K outline draw-on 0..1
+
+  /* CH 02 — FORMATION */
+  assembly: 0, // parts seat into place 0..1
+  glow: 0, // lighting resolve 0..1
+
+  /* camera */
+  camX: 0,
+  camY: 0.1,
+  camZ: 9.2,
+
+  /* CH 03 — REPETITION */
+  corridor: 0, // corridor presence 0..1
+  fog: 0.012,
+  kFade: 1, // K visibility after the pass-through
+
+  /* CH 04 — INTERVENTION */
+  beamZ: -60, // z position of the sweeping beam (inactive when < -55)
+  beam: 0, // beam visibility 0..1
+  reorg: 0, // slabs → reorganised lattice 0..1
+
+  /* CH 05 — SOFTWARE */
+  software: 0, // environment presence 0..1
+  reflow: 0, // wall regions re-layout 0..1
+  record: 0, // the travelling record's path progress 0..1
+
+  /* CH 06 — AUTOMATION */
+  network: 0, // stations presence 0..1
+  connect: 0, // connections drawn in dependency order 0..1
+
+  /* CH 09 — ONE SYSTEM (pull-back re-uses the journey groups) */
+  machine: 0, // interior chamber glow during the reveal 0..1
 };
 
 export const cinema = {
-  /** master progress 0..1 — written by the ScrollTrigger, read by nav/inspector */
+  /** master progress 0..1 — written by ScrollTrigger onUpdate */
   progress: 0,
   pointerX: 0,
   pointerY: 0,
   tier: "high" as Tier,
   reduced: false,
-  paused: false,
   ready: false,
 };
 
-/** Scene map, for the inspector + nav seeks. Fractions of the master timeline. */
-export const SCENE_MARKS: { id: string; t: number }[] = [
-  { id: "hero", t: 0.0 },
-  { id: "website", t: 0.22 },
-  { id: "interaction", t: 0.31 },
-  { id: "pipeline", t: 0.5 },
-  { id: "dashboard", t: 0.67 },
-  { id: "showcase", t: 0.84 },
-  { id: "finale", t: 0.985 },
-];
-
-export function sceneAt(p: number): string {
-  let cur = SCENE_MARKS[0].id;
-  for (const m of SCENE_MARKS) if (p >= m.t) cur = m.id;
-  return cur;
+/* Prototype chapter ranges (fractions of the master timeline). */
+export interface Chapter {
+  index: string;
+  name: string;
+  t: number;
 }
 
-/* ---------- helpers ---------- */
+export const CHAPTERS: Chapter[] = [
+  { index: "01", name: "Signal", t: 0 },
+  { index: "02", name: "Formation", t: 0.08 },
+  { index: "03", name: "Repetition", t: 0.18 },
+  { index: "04", name: "Intervention", t: 0.28 },
+  { index: "05", name: "Software", t: 0.38 },
+  { index: "06", name: "Automation", t: 0.5 },
+  { index: "07", name: "Digital Experiences", t: 0.6 },
+  { index: "08", name: "Selected Work", t: 0.68 },
+  { index: "09", name: "One System", t: 0.86 },
+  { index: "10", name: "Conversion", t: 0.94 },
+];
+
+export function chapterAt(p: number): Chapter {
+  let cur = CHAPTERS[0];
+  for (const c of CHAPTERS) if (p >= c.t) cur = c;
+  return cur;
+}
 
 export const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -69,8 +95,9 @@ export function detectTier(): Tier {
   if (typeof window === "undefined") return "mid";
   const w = window.innerWidth;
   const cores = navigator.hardwareConcurrency || 4;
-  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4;
-  if (w < 760 || cores <= 4 || mem <= 4) return "low";
+  const mem =
+    (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4;
+  if (cores <= 4 || mem <= 4) return "low";
   if (w < 1280 || cores <= 8) return "mid";
   return "high";
 }
@@ -86,26 +113,4 @@ export function hasWebGL(): boolean {
   } catch {
     return false;
   }
-}
-
-/* ---------- optional audio hooks (silent by default) ---------- */
-
-export type CinemaCue =
-  | "unfold"
-  | "interface-activate"
-  | "lead-born"
-  | "data-pulse"
-  | "booking-confirmed"
-  | "reassemble";
-
-type CueHandler = (cue: CinemaCue) => void;
-const cueHandlers = new Set<CueHandler>();
-
-export function onCue(handler: CueHandler) {
-  cueHandlers.add(handler);
-  return () => cueHandlers.delete(handler);
-}
-
-export function emitCue(cue: CinemaCue) {
-  cueHandlers.forEach((h) => h(cue));
 }

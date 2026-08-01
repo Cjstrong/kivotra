@@ -1,0 +1,48 @@
+.root {
+  background: var(--bg);
+}
+
+.hero {
+  position: relative;
+  min-height: 92svh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.heroImg {
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.85;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  padding: 0 6vw 10vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: linear-gradient(to top, rgba(3, 4, 5, 0.85), transparent);
+  width: 100%;
+  padding-top: 18vh;
+}
+
+.kicker {
+  color: var(--ink-dim);
+  font-size: var(--t-body);
+}
+
+.section {
+  padding: 14vh 6vw;
+  display: flex;
+  flex-direction: column;
+  gap: 3.2rem;
+  border-top: 1px solid rgba(155, 184, 212, 0.08);
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 1.6rem;
+}

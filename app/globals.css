@@ -1,310 +1,110 @@
-/* ============================================================
-   KIVOTRA — AI automation for local businesses
-   Dark, cinematic, restrained. Whitespace + large type do the work.
-   ============================================================ */
+/* ── Kivotra Engine · design tokens ─────────────────────────────── */
 
 :root {
-  color-scheme: dark;
+  /* world */
+  --bg: #050608;
+  --bg-deep: #030405;
+  --ink: #f2f4f7;
+  --ink-dim: #98a0ad;
+  --ink-faint: #545b66;
+  --accent: #9bb8d4; /* glacial blue */
+  --accent-violet: #8b87c6; /* cold violet — sparing */
+  --hairline: rgba(155, 184, 212, 0.22);
 
-  /* Ground — deep graphite, cool */
-  --bg: #08090b;
-  --bg-2: #0b0d10;
-  --surface: #101318;
-  --surface-2: #161a20;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-2: rgba(255, 255, 255, 0.14);
+  /* type scale — fluid */
+  --t-display: clamp(2.6rem, 6.5vw, 6.4rem);
+  --t-title: clamp(1.7rem, 3.4vw, 3.2rem);
+  --t-body: clamp(1rem, 1.15vw, 1.15rem);
+  --t-mono: 0.72rem;
 
-  /* Ink */
-  --ink: #f1f4f7;
-  --ink-2: #aeb6be;
-  --ink-3: #6d757d;
-  --ink-4: #454c53;
-
-  /* Accent — a single cool aqua, used sparingly */
-  --accent: #57e6da;
-  --accent-bright: #8ff3ea;
-  --accent-deep: #12a89d;
-  --accent-ink: #04120f;
-  --accent-wash: rgba(87, 230, 218, 0.1);
-  --accent-line: rgba(87, 230, 218, 0.28);
-
-  /* Spectral — vessel / signature only */
-  --spec-aqua: #5be9de;
-  --spec-violet: #8f8bff;
-  --spec-rose: #ff9dbb;
-
-  --danger: #ff6f7d;
-  --warn: #f2c368;
-  --ok: #4fd6a0;
-
-  /* Type */
-  --font-display: "SF Pro Display", "Neue Haas Grotesk Display Pro", system-ui,
-    -apple-system, "Segoe UI", sans-serif;
-  --font-text: "SF Pro Text", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", "Menlo", monospace;
-
-  /* Layout */
-  --page: 1200px;
-  --pad: clamp(20px, 5vw, 56px);
-  --nav-h: 76px;
-
-  /* Motion */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-film: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
+  background: var(--bg-deep);
+  color-scheme: dark;
+  /* a pinned scroll film must own its scroll position — no browser anchoring */
+  overflow-anchor: none;
 }
 
 body {
-  margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-text);
-  font-size: 17px;
-  line-height: 1.6;
-  letter-spacing: -0.011em;
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: rgba(87, 230, 218, 0.24);
-  color: var(--ink);
+  background: rgba(155, 184, 212, 0.25);
 }
 
 a {
   color: inherit;
   text-decoration: none;
 }
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-h1,
-h2,
-h3,
-h4 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-  color: var(--ink);
-}
-p {
-  margin: 0;
-}
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
 
-/* Layout helpers */
-.container {
-  width: 100%;
-  max-width: var(--page);
-  margin: 0 auto;
-  padding-left: var(--pad);
-  padding-right: var(--pad);
-}
-.section {
-  position: relative;
-  padding: clamp(88px, 14vh, 180px) 0;
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500;
-}
-.eyebrow::before {
-  content: "";
-  width: 22px;
-  height: 1px;
-  background: var(--accent-line);
-}
-
-.h-kicker {
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-/* Section heading scale — large */
+/* editorial voices */
 .display {
-  font-size: clamp(38px, 6vw, 76px);
+  font-family: var(--font-display), var(--font-body), sans-serif;
+  font-size: var(--t-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
   line-height: 1.02;
-  letter-spacing: -0.04em;
 }
-.h2 {
-  font-size: clamp(30px, 4.6vw, 54px);
-  line-height: 1.05;
-  letter-spacing: -0.035em;
+
+.title {
+  font-family: var(--font-display), var(--font-body), sans-serif;
+  font-size: var(--t-title);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
-.lead {
-  color: var(--ink-2);
-  font-size: clamp(17px, 1.7vw, 21px);
+
+.body {
+  font-size: var(--t-body);
+  font-weight: 400;
   line-height: 1.55;
-  max-width: 60ch;
+  color: var(--ink-dim);
+  max-width: 34em;
 }
 
 .mono {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--t-mono);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
-/* Reveal base — progressive enhancement.
-   Visible by default (no-JS / reduced motion safe). GSAP applies the
-   'from' state at runtime, so nothing is ever permanently hidden. */
-.reveal {
-  will-change: transform, opacity;
+/* accessibility */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 2px;
+  font-size: 0.85rem;
 }
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.01em;
-  padding: 15px 26px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  transition: transform 0.18s var(--ease-out), background 0.2s ease,
-    box-shadow 0.28s ease, border-color 0.2s ease, color 0.2s ease;
-  white-space: nowrap;
-}
-.btn:active {
-  transform: translateY(1px);
-}
-.btn-primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: 0 10px 30px -10px rgba(87, 230, 218, 0.5);
-}
-.btn-primary:hover {
-  background: var(--accent-bright);
-  box-shadow: 0 16px 44px -12px rgba(87, 230, 218, 0.6);
-  transform: translateY(-2px);
-}
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--line-2);
-}
-.btn-ghost:hover {
-  border-color: var(--accent-line);
-  background: rgba(255, 255, 255, 0.03);
-  transform: translateY(-2px);
-}
-
-.arrow {
-  transition: transform 0.28s var(--ease-out);
-}
-.btn:hover .arrow {
-  transform: translateX(4px);
-}
-
-/* ---- Cinematic stage ---- */
-.cinema-scroll {
-  position: relative;
-  height: var(--cinema-len, 920vh);
-}
-.cinema-stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  overflow: hidden;
-  /* volumetric depth, never flat black: a cool halo where the crystal
-     lives, a faint floor bounce, deep vignetted corners */
-  background:
-    radial-gradient(52% 44% at 50% 38%, rgba(91, 142, 230, 0.1) 0%, transparent 70%),
-    radial-gradient(70% 30% at 50% 96%, rgba(120, 150, 190, 0.05) 0%, transparent 75%),
-    radial-gradient(120% 100% at 50% 0%, #0a0d13 0%, #060709 60%, #050608 100%);
-}
-/* one soft light shaft, drifting almost imperceptibly */
-.cinema-stage::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  z-index: 0;
-  pointer-events: none;
-  background: conic-gradient(
-    from 218deg at 68% -8%,
-    transparent 0deg,
-    rgba(150, 180, 225, 0.045) 14deg,
-    rgba(150, 180, 225, 0.02) 26deg,
-    transparent 40deg
-  );
-  animation: shaft-drift 46s ease-in-out infinite alternate;
-}
-@keyframes shaft-drift {
-  from { transform: translateX(-1.5%) rotate(-0.6deg); }
-  to { transform: translateX(1.5%) rotate(0.8deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cinema-stage::before {
-    animation: none;
-  }
-}
-.cinema-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-.cinema-canvas canvas {
-  display: block;
-}
-.cinema-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-}
-@media (max-width: 900px) {
-  :root {
-    --cinema-len: 700vh;
-  }
+.skip-link:focus {
+  top: 1rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

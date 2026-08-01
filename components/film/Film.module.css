@@ -1,0 +1,587 @@
+.root {
+  position: relative;
+  background: var(--bg);
+}
+
+/* scroll length of the full film — ten chapters */
+.scroller {
+  height: 1080vh;
+  position: relative;
+}
+
+.stage {
+  position: relative;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ── copy layer ── */
+
+.copy {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.copy > * {
+  position: absolute;
+  opacity: 0;
+}
+
+.c1 {
+  left: 50%;
+  top: 58%;
+  text-align: center;
+  font-size: var(--t-body);
+  color: var(--ink-dim);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.c2h {
+  left: 50%;
+  bottom: 16vh;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.c2s {
+  left: 50%;
+  bottom: 9.5vh;
+  text-align: center;
+  width: min(90vw, 44em);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+.c3 {
+  top: 50%;
+}
+
+.c3 :global(.mono) {
+  display: block;
+  margin-bottom: 0.9rem;
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+.c3a {
+  left: 58vw;
+}
+.c3b {
+  left: 8vw;
+}
+.c3c {
+  left: 50%;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .c1 {
+    white-space: normal;
+    width: 88vw;
+    text-align: center;
+  }
+  .c2h {
+    white-space: normal;
+    width: 92vw;
+    bottom: 19vh;
+  }
+  .c2s {
+    bottom: 10vh;
+    width: 88vw;
+  }
+  .c3a,
+  .c3b {
+    left: 7vw;
+    right: 7vw;
+  }
+}
+
+/* ── nav ── */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+}
+
+.wordmark {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.34em;
+  color: var(--ink);
+}
+
+.cta {
+  pointer-events: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--t-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--hairline);
+  border-radius: 1px;
+  transition: border-color 0.3s var(--ease-film), background 0.3s;
+}
+
+.cta:hover {
+  border-color: var(--accent);
+  background: rgba(155, 184, 212, 0.06);
+}
+
+.chapterIndex {
+  position: fixed;
+  left: 2rem;
+  bottom: 1.8rem;
+  z-index: 10;
+}
+
+@media (max-width: 760px) {
+  .nav {
+    padding: 1.1rem 1.2rem;
+  }
+  .chapterIndex {
+    left: 1.2rem;
+    bottom: 1.2rem;
+  }
+}
+
+/* ── loading ── */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  transition: opacity 0.7s var(--ease-film);
+}
+
+.loadingLine {
+  width: 8rem;
+  height: 1px;
+  background: var(--hairline);
+  overflow: hidden;
+  position: relative;
+}
+
+.loadingLine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform-origin: left;
+  animation: sweep 1.4s var(--ease-film) infinite;
+}
+
+@keyframes sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.loadingHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── generic copy lines (ch 04–06) ── */
+
+.line {
+  max-width: min(86vw, 16em);
+}
+
+/* GSAP hooks — must exist as real classes so CSS-module lookups resolve */
+.centered {
+  will-change: opacity;
+}
+.cvItem {
+  will-change: transform, opacity;
+}
+.c6a,
+.c6b,
+.c6c {
+  will-change: opacity;
+}
+.c9a,
+.c9b,
+.c9c {
+  will-change: opacity;
+}
+
+.c4a {
+  left: 54vw;
+  top: 38%;
+}
+.c4b {
+  left: 8vw;
+  top: 54%;
+}
+.c5a {
+  left: 8vw;
+  top: 28%;
+  max-width: min(38vw, 14em);
+}
+.c5b {
+  left: 8vw;
+  top: 56%;
+  max-width: min(38vw, 14em);
+}
+.c5tag {
+  left: 50%;
+  bottom: 10vh;
+  color: var(--accent);
+  opacity: 0;
+}
+.c6 {
+  left: 8vw;
+  bottom: 22vh;
+}
+.c7a {
+  left: 50%;
+  top: 12%;
+  text-align: center;
+  width: min(90vw, 22em);
+}
+.c7b {
+  left: 50%;
+  bottom: 6vh;
+  text-align: center;
+  width: min(90vw, 22em);
+}
+.c9 {
+  left: 50%;
+  top: 42%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .c4a,
+  .c4b,
+  .c5a,
+  .c5b,
+  .c6 {
+    left: 7vw;
+    right: 7vw;
+    max-width: none;
+  }
+  .c9 {
+    white-space: normal;
+    width: 90vw;
+  }
+}
+
+/* ── dimmer for DOM chapters ── */
+
+.dimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--bg-deep);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── CH 07 · website canvas ── */
+
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.siteCanvas {
+  width: min(78vw, 880px);
+}
+
+.canvasTilt {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.1rem;
+  transform-style: preserve-3d;
+}
+
+.canvasTilt > * {
+  border: 1px solid rgba(155, 184, 212, 0.14);
+  background: rgba(10, 15, 22, 0.82);
+  border-radius: 2px;
+}
+
+.cvHeader {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.8rem 1rem;
+}
+.cvHeader span {
+  display: block;
+  height: 6px;
+  width: 3.2rem;
+  background: rgba(155, 184, 212, 0.3);
+}
+.cvHeader span:first-child {
+  width: 5.4rem;
+  background: rgba(242, 244, 247, 0.55);
+}
+
+.cvDisplay {
+  grid-column: 1 / -1;
+  height: clamp(3.6rem, 9vh, 5.4rem);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(242, 244, 247, 0.5) 0 58%,
+      transparent 58%
+    ),
+    rgba(10, 15, 22, 0.82);
+  background-blend-mode: screen;
+}
+
+.cvMedia {
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+.cvMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  display: block;
+}
+
+.cvColA,
+.cvColB {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.cvColA span,
+.cvColB span {
+  display: block;
+  height: 5px;
+  background: rgba(155, 184, 212, 0.26);
+}
+.cvColA span:nth-child(2) {
+  width: 82%;
+}
+.cvColA span:nth-child(3) {
+  width: 64%;
+}
+.cvColB span:nth-child(2) {
+  width: 70%;
+}
+
+.cvChip {
+  height: 2.4rem;
+  width: 9rem;
+  border-color: var(--accent);
+  background: rgba(155, 184, 212, 0.1);
+}
+
+@media (max-width: 760px) {
+  .canvasWrap {
+    padding-top: 12vh;
+  }
+  .siteCanvas {
+    width: 88vw;
+  }
+  .canvasTilt {
+    grid-template-columns: 1fr;
+  }
+  .c7a {
+    top: 5%;
+  }
+}
+
+/* ── CH 08 · selected work ── */
+
+.workTrack {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.workRail {
+  display: flex;
+  height: 100%;
+  width: 300vw;
+}
+
+.workPanel {
+  position: relative;
+  width: 100vw;
+  height: 100%;
+  overflow: hidden;
+  flex: none;
+}
+
+.workBg {
+  position: absolute;
+  inset: -6vw;
+  width: calc(100% + 12vw);
+  height: calc(100% + 12vw);
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.workShade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(3, 4, 5, 0.92) 0%, rgba(3, 4, 5, 0.25) 45%, rgba(3, 4, 5, 0.35) 100%),
+    linear-gradient(to right, rgba(3, 4, 5, 0.75) 0%, transparent 55%);
+}
+
+.workInfo {
+  position: absolute;
+  left: 6vw;
+  bottom: 9vh;
+  max-width: min(86vw, 34em);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.workInfo > :global(.mono) {
+  color: var(--accent, #9bb8d4);
+}
+
+.workInfo dl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.workInfo dl > div {
+  display: grid;
+  grid-template-columns: 6.4rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.workInfo dd {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.workLink {
+  font-family: var(--font-mono), monospace;
+  font-size: var(--t-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 0.35rem;
+  width: fit-content;
+}
+
+@media (max-width: 760px) {
+  .workInfo {
+    left: 7vw;
+    right: 7vw;
+    bottom: 7vh;
+  }
+  .workInfo dl > div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+/* ── CH 10 · conversion ── */
+
+.c10 {
+  left: 50%;
+  bottom: 10vh;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  opacity: 0;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 1rem;
+  pointer-events: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btnPrimary,
+.btnGhost {
+  font-family: var(--font-mono), monospace;
+  font-size: var(--t-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.6rem;
+  border-radius: 1px;
+  transition:
+    border-color 0.3s var(--ease-film),
+    background 0.3s;
+}
+
+.btnPrimary {
+  background: var(--ink);
+  color: var(--bg-deep);
+  border: 1px solid var(--ink);
+}
+.btnPrimary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btnGhost {
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+}
+.btnGhost:hover {
+  border-color: var(--accent);
+}
+
+/* ── footer ── */
+
+.footer {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  border-top: 1px solid rgba(155, 184, 212, 0.08);
+  padding: 4rem 6vw;
+  text-align: center;
+}

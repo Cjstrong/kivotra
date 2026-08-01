@@ -1,5 +1,9 @@
-import CinemaHome from "@/components/cinema/CinemaHome";
+import FilmLoader from "@/components/film/FilmLoader";
 
 export default function Home() {
-  return <CinemaHome />;
+  return (
+    <main>
+      <FilmLoader />
+    </main>
+  );
 }

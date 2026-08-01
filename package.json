@@ -1,34 +1,27 @@
 {
-  "name": "kivotra-web",
-  "version": "1.0.0",
+  "name": "kivotra-engine",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3005",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "start": "next start -p 3005",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@gsap/react": "2.1.1",
-    "@react-three/drei": "^9.114.3",
-    "@react-three/fiber": "^8.17.10",
-    "@react-three/postprocessing": "^2.16.3",
-    "gsap": "3.12.5",
-    "lenis": "1.1.13",
-    "next": "^14.2.35",
-    "postprocessing": "^6.36.4",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "three": "^0.169.0"
+    "@gsap/react": "^2.1.2",
+    "@react-three/fiber": "^9.6.1",
+    "gsap": "^3.15.0",
+    "next": "^16.2.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.185.1"
   },
   "devDependencies": {
-    "@types/node": "20.14.10",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "@types/three": "^0.169.0",
-    "eslint": "8.57.0",
-    "eslint-config-next": "^14.2.35",
-    "typescript": "5.5.3"
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@types/three": "^0.185.1",
+    "typescript": "^6.0.3"
   }
 }
