@@ -70,11 +70,11 @@ export const CHAPTERS: Chapter[] = [
   { index: "02", name: "Formation", t: 0.08 },
   { index: "03", name: "Repetition", t: 0.18 },
   { index: "04", name: "Intervention", t: 0.28 },
-  { index: "05", name: "Software", t: 0.38 },
-  { index: "06", name: "Automation", t: 0.5 },
-  { index: "07", name: "Digital Experiences", t: 0.6 },
+  { index: "05", name: "Proof", t: 0.38 },
+  { index: "06", name: "No Promises", t: 0.5 },
+  { index: "07", name: "The Check", t: 0.6 },
   { index: "08", name: "Selected Work", t: 0.68 },
-  { index: "09", name: "One System", t: 0.86 },
+  { index: "09", name: "Authority", t: 0.86 },
   { index: "10", name: "Conversion", t: 0.94 },
 ];
 

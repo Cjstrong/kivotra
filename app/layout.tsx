@@ -15,9 +15,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kivotra — Built to stand apart",
+  title: "Kivotra — Be trusted before the meeting",
   description:
-    "Kivotra engineers custom software, intelligent systems and digital experiences for businesses that refuse to blend in.",
+    "Kivotra is Ireland's authority agency. We build the proof buyers look for — editorial features, press distribution and founder positioning, honestly labelled.",
 };
 
 export const viewport: Viewport = {

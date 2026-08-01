@@ -25,10 +25,10 @@ export const WORK: CaseStudy[] = [
     name: "Meridian Logistics",
     industry: "Freight & logistics",
     challenge:
-      "Dispatch, tracking and invoicing lived in four disconnected tools, reconciled by hand every week.",
+      "Twenty years of flawless work, invisible outside its own client list. Googling the founder returned a directory listing.",
     solution:
-      "One operations platform: live job board, driver portal, automated invoicing and a single source of record.",
-    result: "Weekly reconciliation reduced to zero. Concept build.",
+      "Founder positioning, one national editorial feature — paid placement, disclosed — and a distributed press record for every milestone.",
+    result: "Page one for the founder's name is now their own story. Concept build.",
     plate: "/film/work-meridian.png",
     accent: "#9bb8d4",
     note: "Concept build",
@@ -39,10 +39,10 @@ export const WORK: CaseStudy[] = [
     name: "Halewood Clinics",
     industry: "Private healthcare",
     challenge:
-      "Patients booked by phone; records, referrals and follow-ups moved through inboxes.",
+      "Patients chose the clinic on trust alone — and every proof point lived in a waiting-room folder.",
     solution:
-      "A patient portal with scheduling, intake and secure messaging, integrated with the clinic's existing record system.",
-    result: "Front-desk call volume cut by half. Concept build.",
+      "Executive positioning for the lead clinician, authority pages for the practice, and one editorial feature — paid placement, disclosed.",
+    result: "The first thing patients find is the clinician, in their own words. Concept build.",
     plate: "/film/work-halewood.png",
     accent: "#c4cdd8",
     note: "Concept build",
@@ -53,10 +53,10 @@ export const WORK: CaseStudy[] = [
     name: "Arla & Frost",
     industry: "Architecture studio",
     challenge:
-      "A portfolio indistinguishable from every other studio's template site.",
+      "Exceptional buildings, anonymous partners. The studio's name carried no story of its own.",
     solution:
-      "An interactive experience where each project is presented as a navigable spatial environment.",
-    result: "Average session length tripled. Concept build.",
+      "Founder positioning for both partners, a distributed press record, and one national feature — paid placement, disclosed.",
+    result: "The work now has named authors. Concept build.",
     plate: "/film/work-arla.png",
     accent: "#8b87c6",
     note: "Concept build",

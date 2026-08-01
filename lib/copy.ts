@@ -3,47 +3,47 @@
 
 export const COPY = {
   signal: {
-    line: "Most businesses disappear into the noise.",
+    line: "Before anyone buys from you, they check.",
   },
   formation: {
-    headline: "Built to stand apart.",
-    sub: "We engineer software, systems and digital experiences for businesses that refuse to blend in.",
+    headline: "Be trusted before the meeting.",
+    sub: "Kivotra is an authority agency. We build the proof buyers look for — before they ever talk to you.",
   },
   repetition: {
-    lines: ["Same templates.", "Same systems.", "Same experience."],
+    lines: ["Everyone says trusted.", "Everyone says leading.", "Saying it isn't proof."],
   },
   intervention: {
-    a: "Ordinary is a technical limitation.",
-    b: "We replace it with engineered advantage.",
+    a: "You're not short on substance.",
+    b: "You're short on proof.",
   },
   software: {
-    a: "Software engineered around your business.",
-    b: "Not another system your business must work around.",
-    tag: "SaaS platforms · client portals · internal tools · dashboards",
+    a: "A national feature about you, written and published.",
+    b: "Paid placement, honestly labelled — never dressed up as earned.",
+    tag: "editorial features · press distribution · founder positioning",
   },
   automation: {
-    lines: ["Less repetition.", "Fewer disconnected tools.", "More room to grow."],
+    lines: ["No promised rankings.", "No promised leads.", "Only what we can guarantee."],
   },
   experiences: {
-    a: "Your website should not simply explain your business.",
-    b: "It should prove what your business is capable of.",
+    a: "Buyers check twice: Google, then ChatGPT.",
+    b: "We build what both of them find.",
   },
   oneSystem: {
-    lines: ["One partner.", "One system.", "No disconnected thinking."],
+    lines: ["Marketing rents attention.", "PR sells effort.", "Authority compounds."],
   },
   conversion: {
-    headline: "Engineer your advantage.",
-    primary: "Start a project",
-    primaryHref: "mailto:hello@kivotra.com",
+    headline: "Find out what your buyers already know.",
+    primary: "Get your free snapshot",
+    primaryHref: "mailto:hello@kivotra.com?subject=Snapshot%20request",
     secondary: "Explore our work",
   },
   nav: {
     wordmark: "KIVOTRA",
-    cta: "Start a project",
-    ctaHref: "mailto:hello@kivotra.com",
+    cta: "Get your snapshot",
+    ctaHref: "mailto:hello@kivotra.com?subject=Snapshot%20request",
   },
   footer: {
-    line: "Kivotra engineers software, systems and digital experiences.",
+    line: "Kivotra is an authority agency. Dublin, Ireland.",
     note: "© Kivotra. Built by Kivotra.",
   },
 } as const;
